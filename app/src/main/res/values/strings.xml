@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">KITWidget</string>
+    <string name="appwidget_text">EXAMPLE</string>
+    <string name="add_widget">Add widget</string>
+    <string name="app_widget_description">This is an app widget description</string>
+    <string name="column1">COL1</string>
+    <string name="column2">COL2</string>
+    <string name="column3">COL3</string>
+    <string name="column4">COL4</string>
+    <string name="column5">COL5</string>
+
+</resources>
