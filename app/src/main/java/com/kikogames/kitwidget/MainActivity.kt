@@ -28,8 +28,24 @@ import android.widget.SeekBar
 
 import android.widget.SeekBar.OnSeekBarChangeListener
 import androidx.constraintlayout.widget.ConstraintLayout
-import com.github.dhaval2404.colorpicker.ColorPickerDialog
-import com.github.dhaval2404.colorpicker.model.ColorShape
+import android.R.color
+import android.widget.LinearLayout
+import com.skydoves.colorpickerview.ColorPickerView
+
+import com.skydoves.colorpickerview.listeners.ColorListener
+import android.content.DialogInterface
+import android.content.res.ColorStateList
+
+import com.skydoves.colorpickerview.ColorEnvelope
+
+import com.skydoves.colorpickerview.listeners.ColorEnvelopeListener
+
+import com.skydoves.colorpickerview.ColorPickerDialog
+
+
+
+
+
 
 
 class MainActivity : AppCompatActivity() {
@@ -153,23 +169,49 @@ class MainActivity : AppCompatActivity() {
 
         //Цвета
         firstBtn.setOnClickListener{
-            ColorPickerDialog
-                .Builder(this)        				// Pass Activity Instance
-                .setTitle("Pick Theme")           	// Default "Choose Color"
-                .setColorShape(ColorShape.SQAURE)   // Default ColorShape.CIRCLE // Pass Default Color
-                .setColorListener { color, colorHex ->
-                    // Handle Color Selection
-                }
+            ColorPickerDialog.Builder(this)
+                .setTitle("Выбрать цвет заднего фона")
+                .setPreferenceName("background")
+                .setPositiveButton(getString(R.string.confirm),
+                    ColorEnvelopeListener { envelope, fromUser ->
+
+                        findViewById<View>(R.id.widgetBack).backgroundTintList = ColorStateList.valueOf(envelope.color)
+
+                    })
+                .setNegativeButton(
+                    getString(R.string.cancel)
+                ) { dialogInterface, i -> dialogInterface.dismiss() }
+                .attachAlphaSlideBar(true) // the default value is true.
+                .attachBrightnessSlideBar(true) // the default value is true.
+                .setBottomSpace(12) // set a bottom space between the last slidebar and buttons.
                 .show()
         }
         secondBtn.setOnClickListener{
-            ColorPickerDialog
-                .Builder(this)        				// Pass Activity Instance
-                .setTitle("Pick Theme")           	// Default "Choose Color"
-                .setColorShape(ColorShape.SQAURE)   // Default ColorShape.CIRCLE // Pass Default Color
-                .setColorListener { color, colorHex ->
-                    // Handle Color Selection
-                }
+            ColorPickerDialog.Builder(this)
+                .setTitle("Выбрать цвет текста")
+                .setPreferenceName("text")
+                .setPositiveButton(getString(R.string.confirm),
+                    ColorEnvelopeListener { envelope, fromUser ->
+
+                        findViewById<TextView>(R.id.col1).setTextColor(envelope.color)
+                        findViewById<TextView>(R.id.col2).setTextColor(envelope.color)
+                        findViewById<TextView>(R.id.col3).setTextColor(envelope.color)
+                        findViewById<TextView>(R.id.col4).setTextColor(envelope.color)
+                        findViewById<TextView>(R.id.col5).setTextColor(envelope.color)
+
+                        findViewById<View>(R.id.wseparator).backgroundTintList = ColorStateList.valueOf(envelope.color)
+                        findViewById<View>(R.id.wseparator2).backgroundTintList = ColorStateList.valueOf(envelope.color)
+                        findViewById<View>(R.id.wseparator3).backgroundTintList = ColorStateList.valueOf(envelope.color)
+                        findViewById<View>(R.id.wseparator4).backgroundTintList = ColorStateList.valueOf(envelope.color)
+
+
+                    })
+                .setNegativeButton(
+                    getString(R.string.cancel)
+                ) { dialogInterface, i -> dialogInterface.dismiss() }
+                .attachAlphaSlideBar(true) // the default value is true.
+                .attachBrightnessSlideBar(true) // the default value is true.
+                .setBottomSpace(12) // set a bottom space between the last slidebar and buttons.
                 .show()
         }
     }

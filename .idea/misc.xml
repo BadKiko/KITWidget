@@ -18,15 +18,12 @@
         <entry key="..\:/Work/AStudio/KITWidget/app/src/main/res/drawable/tworound.xml" value="0.23489583333333333" />
         <entry key="..\:/Work/AStudio/KITWidget/app/src/main/res/drawable/widgetround.xml" value="0.23489583333333333" />
         <entry key="..\:/Work/AStudio/KITWidget/app/src/main/res/drawable/wroundseparator.xml" value="0.403125" />
-        <entry key="..\:/Work/AStudio/KITWidget/app/src/main/res/layout/activity_main.xml" value="0.5" />
+        <entry key="..\:/Work/AStudio/KITWidget/app/src/main/res/layout/activity_main.xml" value="0.67" />
         <entry key="..\:/Work/AStudio/KITWidget/app/src/main/res/layout/main_widget.xml" value="0.33" />
         <entry key="..\:/Work/AStudio/KITWidget/app/src/main/res/xml/network_security_config.xml" value="0.21875" />
-        <entry key="app/src/main/res/layout/activity_main.xml" value="0.33" />
-        <entry key="app/src/main/res/layout/main_widget.xml" value="0.60932944606414" />
       </map>
     </option>
   </component>
-  <component name="ExternalStorageConfigurationManager" enabled="true" />
   <component name="ProjectRootManager" version="2" languageLevel="JDK_11" default="true" project-jdk-name="Android Studio default JDK" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/build/classes" />
   </component>
