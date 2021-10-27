@@ -9,13 +9,128 @@
     tools:context=".MainActivity">
 
     <ScrollView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toTopOf="@+id/widgetBack"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/titleBack">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical" />
+            android:layout_gravity="center|top"
+            android:gravity="center|top"
+            android:orientation="vertical">
+
+            <Button
+                android:id="@+id/update"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginStart="32dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginEnd="32dp"
+                android:background="@drawable/buttons"
+                android:fontFamily="@font/evob"
+                android:text="Обновить расписание"
+                android:textAlignment="center"
+                android:textAllCaps="false"
+                android:textColor="@color/main_win_color"
+                android:textSize="24sp" />
+
+            <View
+                android:id="@+id/separator"
+                android:layout_width="394dp"
+                android:layout_height="3dp"
+                android:layout_marginStart="24dp"
+                android:layout_marginTop="20dp"
+                android:layout_marginEnd="24dp"
+                android:background="@drawable/roundseparator" />
+
+            <SeekBar
+                android:id="@+id/shrift"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginStart="32dp"
+                android:layout_marginTop="12dp"
+                android:layout_marginEnd="32dp"
+                android:max="30"
+                android:min="10"
+                android:progress="14"
+                android:progressDrawable="@drawable/trackswitch"
+                android:splitTrack="false"
+                android:thumb="@drawable/thumbswitch" />
+
+            <TextView
+                android:id="@+id/fontSizeTV2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:fontFamily="@font/evob"
+                android:text="Цвета"
+                android:textAlignment="center"
+                android:textColor="@color/second_win_color"
+                android:textSize="22sp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_gravity="center|top"
+                android:foregroundGravity="center"
+                android:gravity="center|top"
+                android:orientation="horizontal"
+                android:paddingStart="0dp">
+
+                <Button
+                    android:id="@+id/firstcolor"
+                    android:layout_width="187dp"
+                    android:layout_height="49dp"
+                    android:layout_marginStart="32dp"
+                    android:layout_marginTop="16dp"
+                    android:background="@drawable/buttons"
+                    android:fontFamily="@font/evob"
+                    android:text="Задний фон"
+                    android:textAlignment="center"
+                    android:textAllCaps="false"
+                    android:textColor="@color/main_win_color"
+                    android:textSize="14sp" />
+
+                <Button
+                    android:id="@+id/secondcolor"
+                    android:layout_width="187dp"
+                    android:layout_height="49dp"
+                    android:layout_marginTop="16dp"
+                    android:background="@drawable/buttons"
+                    android:backgroundTint="#D8FFCF00"
+                    android:fontFamily="@font/evob"
+                    android:text="Текст"
+                    android:textAlignment="center"
+                    android:textAllCaps="false"
+                    android:textColor="@color/main_win_color"
+                    android:textSize="14sp" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/fontSizeTV"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:fontFamily="@font/evob"
+                android:text="Размер шрифта виджета - 14px"
+                android:textAlignment="center"
+                android:textColor="@color/second_win_color"
+                android:textSize="22sp" />
+
+            <View
+                android:id="@+id/separator2"
+                android:layout_width="0dp"
+                android:layout_height="2dp"
+                android:layout_marginStart="24dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginEnd="24dp"
+                android:background="@drawable/roundseparator" />
+
+        </LinearLayout>
     </ScrollView>
 
     <View
@@ -28,32 +143,6 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <View
-        android:id="@+id/separator"
-        android:layout_width="0dp"
-        android:layout_height="2dp"
-        android:layout_marginStart="24dp"
-        android:layout_marginTop="20dp"
-        android:layout_marginEnd="24dp"
-        android:background="@drawable/roundseparator"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/update" />
-
-    <View
-        android:id="@+id/separator2"
-        android:layout_width="0dp"
-        android:layout_height="2dp"
-        android:layout_marginStart="24dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="24dp"
-        android:background="@drawable/roundseparator"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/shrift" />
-
-    <View
         android:id="@+id/widgetBack"
         android:layout_width="410dp"
         android:layout_height="246dp"
@@ -63,61 +152,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.49"
         app:layout_constraintStart_toStartOf="parent" />
-
-    <Button
-        android:id="@+id/update"
-        android:layout_width="0dp"
-        android:layout_height="52dp"
-        android:layout_marginStart="32dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="32dp"
-        android:background="@drawable/buttons"
-        android:fontFamily="@font/evob"
-        android:text="Обновить расписание"
-        android:textAlignment="center"
-        android:textAllCaps="false"
-        android:textColor="@color/main_win_color"
-        android:textSize="24sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/titleBack" />
-
-    <Button
-        android:id="@+id/secondcolor"
-        android:layout_width="187dp"
-        android:layout_height="49dp"
-        android:layout_marginTop="16dp"
-        android:background="@drawable/buttons"
-        android:backgroundTint="#D8FFCF00"
-        android:fontFamily="@font/evob"
-        android:text="Текст"
-        android:textAlignment="center"
-        android:textAllCaps="false"
-        android:textColor="@color/main_win_color"
-        android:textSize="14sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.78"
-        app:layout_constraintStart_toStartOf="@+id/firstcolor"
-        app:layout_constraintTop_toBottomOf="@+id/fontSizeTV2" />
-
-    <Button
-        android:id="@+id/firstcolor"
-        android:layout_width="187dp"
-        android:layout_height="49dp"
-        android:layout_marginStart="32dp"
-        android:layout_marginTop="16dp"
-        android:background="@drawable/buttons"
-        android:fontFamily="@font/evob"
-        android:text="Задний фон"
-        android:textAlignment="center"
-        android:textAllCaps="false"
-        android:textColor="@color/main_win_color"
-        android:textSize="14sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.03"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/fontSizeTV2" />
 
     <Button
         android:id="@+id/deleteAll"
@@ -297,53 +331,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.36" />
-
-    <TextView
-        android:id="@+id/fontSizeTV"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:fontFamily="@font/evob"
-        android:text="Размер шрифта виджета - 14px"
-        android:textAlignment="center"
-        android:textColor="@color/second_win_color"
-        android:textSize="22sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/separator" />
-
-    <TextView
-        android:id="@+id/fontSizeTV2"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:fontFamily="@font/evob"
-        android:text="Цвета"
-        android:textAlignment="center"
-        android:textColor="@color/second_win_color"
-        android:textSize="22sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/separator2" />
-
-    <SeekBar
-        android:id="@+id/shrift"
-        android:layout_width="349dp"
-        android:layout_height="60px"
-        android:layout_marginStart="32dp"
-        android:layout_marginTop="12dp"
-        android:layout_marginEnd="32dp"
-        android:max="30"
-        android:min="10"
-        android:progress="14"
-        android:progressDrawable="@drawable/trackswitch"
-        android:splitTrack="false"
-        android:thumb="@drawable/thumbswitch"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/fontSizeTV" />
 
     <androidx.constraintlayout.widget.Group
         android:layout_width="wrap_content"
