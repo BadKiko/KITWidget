@@ -4,42 +4,23 @@ import android.appwidget.AppWidgetManager
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.content.SharedPreferences
 import android.content.pm.PackageManager
-import android.content.res.Configuration.ORIENTATION_PORTRAIT
-import android.graphics.Color
 import android.os.AsyncTask
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import android.util.TypedValue
 import android.view.View
-import android.view.ViewGroup
 import android.widget.*
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
-import org.w3c.dom.Text
 import java.io.File
 import java.io.IOException
-import java.util.*
 import android.widget.Toast
-
 import android.widget.SeekBar
-
 import android.widget.SeekBar.OnSeekBarChangeListener
 import androidx.constraintlayout.widget.ConstraintLayout
-import android.R.color
-import android.widget.LinearLayout
-import com.skydoves.colorpickerview.ColorPickerView
-
-import com.skydoves.colorpickerview.listeners.ColorListener
-import android.content.DialogInterface
 import android.content.res.ColorStateList
-
-import com.skydoves.colorpickerview.ColorEnvelope
-
 import com.skydoves.colorpickerview.listeners.ColorEnvelopeListener
-
 import com.skydoves.colorpickerview.ColorPickerDialog
 
 
@@ -49,21 +30,20 @@ import com.skydoves.colorpickerview.ColorPickerDialog
 
 
 class MainActivity : AppCompatActivity() {
-    var directory: String? = null
+    lateinit var directory: String
     var debugMode = 0
-    var appWidgetManager: AppWidgetManager? = null
-    var remoteViews: RemoteViews? = null
-    var thisWidget: ComponentName? = null
-    var file: File? = null
+    lateinit var appWidgetManager: AppWidgetManager
+    lateinit var remoteViews: RemoteViews
+    lateinit var thisWidget: ComponentName
+    lateinit var file: File
     val widgetDataUpdater = WidgetDataUpdater()
-
 
     override fun onStart() {
         super.onStart()
 
         val widgetSizeProvider = WidgetSizeProvider(this)
-        findViewById<View>(R.id.widgetBack).layoutParams.width = widgetSizeProvider.getWidgetsSize(appWidgetManager?.getAppWidgetIds(thisWidget)!![0]).first-25 // Получаем размер виджета
-        findViewById<View>(R.id.widgetBack).layoutParams.height = widgetSizeProvider.getWidgetsSize(appWidgetManager?.getAppWidgetIds(thisWidget)!![0]).second-25 // Получаем размер виджета
+        findViewById<View>(R.id.widgetBack).layoutParams.width = widgetSizeProvider.getWidgetsSize(appWidgetManager.getAppWidgetIds(thisWidget)[0]).first-25 // Получаем размер виджета
+        findViewById<View>(R.id.widgetBack).layoutParams.height = widgetSizeProvider.getWidgetsSize(appWidgetManager.getAppWidgetIds(thisWidget)[0]).second-25 // Получаем размер виджета
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -99,8 +79,8 @@ class MainActivity : AppCompatActivity() {
         val firstBtn = findViewById<Button>(R.id.firstcolor)
         val secondBtn = findViewById<Button>(R.id.secondcolor)
 
-        findViewById<View>(R.id.widgetBack).layoutParams.width = widgetSizeProvider.getWidgetsSize(appWidgetManager?.getAppWidgetIds(thisWidget)!![0]).first-25 // Получаем размер виджета
-        findViewById<View>(R.id.widgetBack).layoutParams.height = widgetSizeProvider.getWidgetsSize(appWidgetManager?.getAppWidgetIds(thisWidget)!![0]).second-25 // Получаем размер виджета
+        findViewById<View>(R.id.widgetBack).layoutParams.width = widgetSizeProvider.getWidgetsSize(appWidgetManager.getAppWidgetIds(thisWidget)[0]).first-25 // Получаем размер виджета
+        findViewById<View>(R.id.widgetBack).layoutParams.height = widgetSizeProvider.getWidgetsSize(appWidgetManager.getAppWidgetIds(thisWidget)[0]).second-25 // Получаем размер виджета
 
         if (!mSharedPrefs.contains("fontSize")) {
             editR.putInt("fontSize", 14)
@@ -162,13 +142,14 @@ class MainActivity : AppCompatActivity() {
             }
         }
         updateButton.setOnClickListener {
-            parseHTML(this);
-            widgetDataUpdater.update(appWidgetManager!!,
-                thisWidget!!, remoteViews!!, file!!, applicationContext)
+            parseHTML(this)
+            widgetDataUpdater.update(appWidgetManager,
+                thisWidget, remoteViews, file, applicationContext)
         }
 
         //Цвета
         firstBtn.setOnClickListener{
+
             ColorPickerDialog.Builder(this)
                 .setTitle("Выбрать цвет заднего фона")
                 .setPreferenceName("background")
@@ -203,8 +184,6 @@ class MainActivity : AppCompatActivity() {
                         findViewById<View>(R.id.wseparator2).backgroundTintList = ColorStateList.valueOf(envelope.color)
                         findViewById<View>(R.id.wseparator3).backgroundTintList = ColorStateList.valueOf(envelope.color)
                         findViewById<View>(R.id.wseparator4).backgroundTintList = ColorStateList.valueOf(envelope.color)
-
-
                     })
                 .setNegativeButton(
                     getString(R.string.cancel)
@@ -222,16 +201,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun updateOnce() {
         val widgetUpdater: WidgetDataUpdater = WidgetDataUpdater()
-        remoteViews?.let {
-            appWidgetManager?.let { it1 ->
-                thisWidget?.let { it2 ->
-                    widgetUpdater.update(
-                        it1, it2,
-                        it, File("$directory/temp.html"), applicationContext
-                    )
-                }
-            }
-        }
+        widgetDataUpdater.update(appWidgetManager, thisWidget, remoteViews, file, applicationContext)
     }
 
     private fun debugCheck() {
@@ -259,21 +229,21 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun updateColumnsInReview(){
-        findViewById<TextView>(R.id.col1)?.text = "Расписание на завтра"
+        findViewById<TextView>(R.id.col1).text = "Расписание на завтра"
 
-        findViewById<TextView>(R.id.col2)?.text = Jsoup.parse(file?.readText())
+        findViewById<TextView>(R.id.col2).text = Jsoup.parse(file.readText())
             .select("#dni-109" + widgetDataUpdater.getDate().toString() + "> b:nth-child(2)")
             .text()
 
-        findViewById<TextView>(R.id.col3)?.text = Jsoup.parse(file?.readText())
+        findViewById<TextView>(R.id.col3).text = Jsoup.parse(file.readText())
             .select("#dni-109" + widgetDataUpdater.getDate().toString() + "> b:nth-child(8)")
             .text()
 
-        findViewById<TextView>(R.id.col4)?.text = Jsoup.parse(file?.readText())
+        findViewById<TextView>(R.id.col4).text = Jsoup.parse(file.readText())
             .select("#dni-109" + widgetDataUpdater.getDate().toString() + "> b:nth-child(14)")
             .text()
 
-        findViewById<TextView>(R.id.col5)?.text = Jsoup.parse(file?.readText())
+        findViewById<TextView>(R.id.col5).text = Jsoup.parse(file.readText())
             .select("#dni-109" + widgetDataUpdater.getDate().toString() + "> b:nth-child(20)")
             .text()
     }
@@ -289,35 +259,26 @@ class MainActivity : AppCompatActivity() {
             Log.d("[FS]", "$directory/temp.html created")
         }
         val ar = AsyncRequest()
-        remoteViews?.let {
-            appWidgetManager?.let { it1 ->
-                thisWidget?.let { it2 ->
-                    ar.takeMainThread(
-                        inputSite, it,
-                        it1, it2, this, findViewById(R.id.root), this
-                    )
-                }
-            }
-        }
+        ar.takeMainThread(file, remoteViews, appWidgetManager, thisWidget, this, findViewById(R.id.root), context)
         ar.execute()
 
         Log.d(
             "[WIDGET INFO]",
-            "WIDGET ID = " + appWidgetManager?.getAppWidgetIds(thisWidget)!![0].toString()
+            "WIDGET ID = " + appWidgetManager.getAppWidgetIds(thisWidget)[0].toString()
         )
         //TODO("ОБЯЗАТЕЛЬНО ПОФИКСИТЬ ЗДЕСЬ ОШИБКА, если нет виджета то приложение вылетит!")
 
     }
 
     internal class AsyncRequest : AsyncTask<Void?, Void?, Void?>() { // Создаем поток Networking
-        private var doc: Document? = null
-        private var file: File? = null
-        private var views: RemoteViews? = null
-        var appWidgetManager: AppWidgetManager? = null
-        var thisWidget: ComponentName? = null
+        private lateinit var doc: Document
+        private lateinit var file: File
+        private lateinit var views: RemoteViews
+        lateinit var appWidgetManager: AppWidgetManager
+        lateinit var thisWidget: ComponentName
         var mainA: MainActivity = MainActivity()
-        var rootView: View? = null
-        var context: Context? = null
+        lateinit var rootView: View
+        lateinit  var context: Context
         fun takeMainThread(
             inputSite: File,
             rv: RemoteViews,
@@ -351,31 +312,25 @@ class MainActivity : AppCompatActivity() {
 
         override fun onPostExecute(result: Void?) {
             super.onPostExecute(result)
-            doc?.html()?.let { file?.writeText(it) }
+
+            file.writeText(doc.html())
+
             val widgetDataUpdater = WidgetDataUpdater()
-            rootView?.findViewById<TextView>(R.id.col2)?.text = Jsoup.parse(file?.readText())
+            rootView.findViewById<TextView>(R.id.col2).text = Jsoup.parse(file.readText())
                 .select("#dni-109" + widgetDataUpdater.getDate().toString() + "> b:nth-child(2)")
                 .text()
-            rootView?.findViewById<TextView>(R.id.col3)?.text = Jsoup.parse(file?.readText())
+            rootView.findViewById<TextView>(R.id.col3).text = Jsoup.parse(file.readText())
                 .select("#dni-109" + widgetDataUpdater.getDate().toString() + "> b:nth-child(8)")
                 .text()
-            rootView?.findViewById<TextView>(R.id.col4)?.text = Jsoup.parse(file?.readText())
+            rootView.findViewById<TextView>(R.id.col4).text = Jsoup.parse(file.readText())
                 .select("#dni-109" + widgetDataUpdater.getDate().toString() + "> b:nth-child(14)")
                 .text()
-            rootView?.findViewById<TextView>(R.id.col5)?.text = Jsoup.parse(file?.readText())
+            rootView.findViewById<TextView>(R.id.col5).text = Jsoup.parse(file.readText())
                 .select("#dni-109" + widgetDataUpdater.getDate().toString() + "> b:nth-child(20)")
                 .text()
-            appWidgetManager?.let { thisWidget?.let { it1 ->
-                views?.let { it2 ->
-                    file?.let { it3 ->
-                        context?.let { it4 ->
-                            widgetDataUpdater.update(it,
-                                it1, it2, it3, it4
-                            )
-                        }
-                    }
-                }
-            } }
+
+            widgetDataUpdater.update(appWidgetManager, thisWidget, views, file, context)
+            mainA.startUpdating() // Начинаем обновление
         }
     }
 }

@@ -40,12 +40,23 @@
 
             <View
                 android:id="@+id/separator"
-                android:layout_width="394dp"
+                android:layout_width="match_parent"
                 android:layout_height="3dp"
                 android:layout_marginStart="24dp"
                 android:layout_marginTop="20dp"
                 android:layout_marginEnd="24dp"
                 android:background="@drawable/roundseparator" />
+
+            <TextView
+                android:id="@+id/fontSizeTV"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:fontFamily="@font/evob"
+                android:text="Размер шрифта виджета - 14px"
+                android:textAlignment="center"
+                android:textColor="@color/second_win_color"
+                android:textSize="22sp" />
 
             <SeekBar
                 android:id="@+id/shrift"
@@ -61,6 +72,15 @@
                 android:splitTrack="false"
                 android:thumb="@drawable/thumbswitch" />
 
+            <View
+                android:id="@+id/separator2"
+                android:layout_width="wrap_content"
+                android:layout_height="3dp"
+                android:layout_marginStart="24dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginEnd="24dp"
+                android:background="@drawable/roundseparator" />
+
             <TextView
                 android:id="@+id/fontSizeTV2"
                 android:layout_width="match_parent"
@@ -72,18 +92,32 @@
                 android:textColor="@color/second_win_color"
                 android:textSize="22sp" />
 
-            <LinearLayout
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_gravity="center|top"
-                android:foregroundGravity="center"
-                android:gravity="center|top"
-                android:orientation="horizontal"
-                android:paddingStart="0dp">
+                android:layout_height="match_parent">
+
+                <Button
+                    android:id="@+id/secondcolor"
+                    android:layout_width="0dp"
+                    android:layout_height="49dp"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginEnd="32dp"
+                    android:background="@drawable/buttons"
+                    android:fontFamily="@font/evob"
+                    android:text="Текст"
+                    android:textAlignment="center"
+                    android:textAllCaps="false"
+                    android:textColor="@color/main_win_color"
+                    android:textSize="14sp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/firstcolor"
+                    app:layout_constraintTop_toTopOf="parent" />
 
                 <Button
                     android:id="@+id/firstcolor"
-                    android:layout_width="187dp"
+                    android:layout_width="0dp"
                     android:layout_height="49dp"
                     android:layout_marginStart="32dp"
                     android:layout_marginTop="16dp"
@@ -93,42 +127,12 @@
                     android:textAlignment="center"
                     android:textAllCaps="false"
                     android:textColor="@color/main_win_color"
-                    android:textSize="14sp" />
-
-                <Button
-                    android:id="@+id/secondcolor"
-                    android:layout_width="187dp"
-                    android:layout_height="49dp"
-                    android:layout_marginTop="16dp"
-                    android:background="@drawable/buttons"
-                    android:backgroundTint="#D8FFCF00"
-                    android:fontFamily="@font/evob"
-                    android:text="Текст"
-                    android:textAlignment="center"
-                    android:textAllCaps="false"
-                    android:textColor="@color/main_win_color"
-                    android:textSize="14sp" />
-            </LinearLayout>
-
-            <TextView
-                android:id="@+id/fontSizeTV"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:fontFamily="@font/evob"
-                android:text="Размер шрифта виджета - 14px"
-                android:textAlignment="center"
-                android:textColor="@color/second_win_color"
-                android:textSize="22sp" />
-
-            <View
-                android:id="@+id/separator2"
-                android:layout_width="0dp"
-                android:layout_height="2dp"
-                android:layout_marginStart="24dp"
-                android:layout_marginTop="16dp"
-                android:layout_marginEnd="24dp"
-                android:background="@drawable/roundseparator" />
+                    android:textSize="14sp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@+id/secondcolor"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
         </LinearLayout>
     </ScrollView>

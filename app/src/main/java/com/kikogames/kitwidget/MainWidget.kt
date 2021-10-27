@@ -4,21 +4,26 @@ import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
 import android.content.ComponentName
 import android.content.Context
+import android.content.Intent
 import android.widget.RemoteViews
 import java.io.File
 import android.content.pm.PackageManager
 
 import android.util.Log
 import android.view.View
+import android.app.PendingIntent
+
+
+
 
 
 /**
  * Implementation of App Widget functionality.
  */
 class MainWidget : AppWidgetProvider() {
-    var views: RemoteViews? = null
-    var directory: String? = null
-    var mainHTMLFile: File? = null
+    lateinit var views: RemoteViews
+    lateinit var directory: String
+    lateinit var mainHTMLFile: File
     override fun onUpdate(
         context: Context,
         appWidgetManager: AppWidgetManager,
@@ -29,6 +34,7 @@ class MainWidget : AppWidgetProvider() {
             updateAppWidget(context, appWidgetManager, appWidgetId)
         }
     }
+
     internal fun updateAppWidget(
         context: Context,
         appWidgetManager: AppWidgetManager,
@@ -44,11 +50,16 @@ class MainWidget : AppWidgetProvider() {
         mainHTMLFile = File("$directory/temp.html")
 
         checkOnFirstLaunch(appWidgetManager, ComponentName(context, this::class.java),
-            mainHTMLFile!!, context
+            mainHTMLFile, context
         ) // Проверка на первый запуск
 
         Log.d("WIDGET INFO *M*", appWidgetId.toString())
         Log.d("WIDGET INFO *M*", views.toString())
+
+        val intent = Intent(context, MainActivity::class.java)
+        val pendingIntent = PendingIntent.getActivity(context, 0, intent, 0)
+
+        views.setOnClickPendingIntent(R.id.mainwidget, pendingIntent);
 
         // Instruct the widget manager to update the widget
         appWidgetManager.updateAppWidget(appWidgetId, views)
@@ -69,23 +80,19 @@ class MainWidget : AppWidgetProvider() {
         appWidgetManager: AppWidgetManager,
         componentName: ComponentName,
         file: File,
-        context: Context, ){
-        if(!mainHTMLFile?.exists()!!){ //Если файл еще не существует
+        context: Context,
+    ){
+        if(!mainHTMLFile.exists()){ //Если файл еще не существует
             Log.d("KITWidget", "temp.html is not founded")
-            views?.setViewVisibility(R.id.textView0, View.INVISIBLE)
-            views?.setViewVisibility(R.id.textView1, View.INVISIBLE)
-            views?.setTextViewText(R.id.textView2, "Перейдите в приложение и нажмите обновить!")
-            views?.setViewVisibility(R.id.textView3, View.INVISIBLE)
-            views?.setViewVisibility(R.id.textView4, View.INVISIBLE)
+            views.setViewVisibility(R.id.textView0, View.INVISIBLE)
+            views.setViewVisibility(R.id.textView1, View.INVISIBLE)
+            views.setTextViewText(R.id.textView2, "Перейдите в приложение и нажмите обновить!")
+            views.setViewVisibility(R.id.textView3, View.INVISIBLE)
+            views.setViewVisibility(R.id.textView4, View.INVISIBLE)
         }
         else{
             val widgetDataUpdater = WidgetDataUpdater()
-
-            views?.let {
-                widgetDataUpdater.update(appWidgetManager, componentName,
-                    it,file, context)
-            }
-
+                widgetDataUpdater.update(appWidgetManager, componentName, views,file, context)
         }
     }
 }

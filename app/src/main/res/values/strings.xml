@@ -8,7 +8,7 @@
     <string name="column3">COL3</string>
     <string name="column4">COL4</string>
     <string name="column5">COL5</string>
-    <string name="confirm">\"Подтвердить\"</string>
+    <string name="confirm">Подтвердить"</string>
     <string name="cancel">Отмена</string>
 
 </resources>
