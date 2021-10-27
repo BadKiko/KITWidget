@@ -20,11 +20,14 @@ class WidgetDataUpdater{
     fun update(appWidgetManager: AppWidgetManager, thisWidget: ComponentName, views: RemoteViews, file: File, context: Context) {
         val mSharedPrefs = context.getSharedPreferences("settings", Context.MODE_PRIVATE)
 
+
+
         Log.d("[DATE]", getDate().toString())
         views.setViewVisibility(R.id.textView0, View.VISIBLE)
         views.setViewVisibility(R.id.textView1, View.VISIBLE)
         views.setViewVisibility(R.id.textView3, View.VISIBLE)
         views.setViewVisibility(R.id.textView4, View.VISIBLE)
+        views.setTextViewText(R.id.textView0, "Расписание на завтра")
         views.setTextViewText(R.id.textView1, Jsoup.parse(file.readText()).select("#dni-109" + getDate().toString() + "> b:nth-child(2)").text())
         Log.d("[PARSE LOG]", Jsoup.parse(file.readText()).select("#dni-109"+getDate().toString() + "> b:nth-child(2)").text())
         views.setTextViewText(R.id.textView2, Jsoup.parse(file.readText()).select("#dni-109"+getDate().toString() +" > b:nth-child(8)").text())

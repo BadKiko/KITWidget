@@ -2,18 +2,12 @@ package com.kikogames.kitwidget
 
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
+import android.content.ComponentName
 import android.content.Context
 import android.widget.RemoteViews
-import android.widget.TextView
-import android.os.AsyncTask
-import org.jsoup.Jsoup
-import org.jsoup.nodes.Document
 import java.io.File
-import java.io.IOException
 import android.content.pm.PackageManager
 
-import android.content.pm.PackageInfo
-import android.opengl.Visibility
 import android.util.Log
 import android.view.View
 
@@ -49,7 +43,9 @@ class MainWidget : AppWidgetProvider() {
 
         mainHTMLFile = File("$directory/temp.html")
 
-        checkOnFirstLaunch() // Проверка на первый запуск
+        checkOnFirstLaunch(appWidgetManager, ComponentName(context, this::class.java),
+            mainHTMLFile!!, context
+        ) // Проверка на первый запуск
 
         Log.d("WIDGET INFO *M*", appWidgetId.toString())
         Log.d("WIDGET INFO *M*", views.toString())
@@ -69,7 +65,11 @@ class MainWidget : AppWidgetProvider() {
         }
     }
 
-    fun checkOnFirstLaunch(){
+    fun checkOnFirstLaunch(
+        appWidgetManager: AppWidgetManager,
+        componentName: ComponentName,
+        file: File,
+        context: Context, ){
         if(!mainHTMLFile?.exists()!!){ //Если файл еще не существует
             Log.d("KITWidget", "temp.html is not founded")
             views?.setViewVisibility(R.id.textView0, View.INVISIBLE)
@@ -79,17 +79,13 @@ class MainWidget : AppWidgetProvider() {
             views?.setViewVisibility(R.id.textView4, View.INVISIBLE)
         }
         else{
-            views?.setTextViewText(R.id.textView1, Jsoup.parse(mainHTMLFile?.readText()).select("#dni-1090 > b:nth-child(2)").text())
-            Log.d("[PARSE LOG]", Jsoup.parse(mainHTMLFile?.readText()).select("#dni-1090 > b:nth-child(2)").text())
-            views?.setTextViewText(R.id.textView2, Jsoup.parse(mainHTMLFile?.readText()).select("#dni-1090 > b:nth-child(8)").text())
-            Log.d("[PARSE LOG]", Jsoup.parse(mainHTMLFile?.readText()).select("#dni-1090 > b:nth-child(8)").text())
-            views?.setTextViewText(R.id.textView3, Jsoup.parse(mainHTMLFile?.readText()).select("#dni-1090 > b:nth-child(14)").text())
-            Log.d("[PARSE LOG]", Jsoup.parse(mainHTMLFile?.readText()).select("#dni-1090 > b:nth-child(14)").text())
-            views?.setTextViewText(R.id.textView4, Jsoup.parse(mainHTMLFile?.readText()).select("#dni-1090 > b:nth-child(20)").text())
-            Log.d("[PARSE LOG]", Jsoup.parse(mainHTMLFile?.readText()).select("#dni-1090 > b:nth-child(20)").text())
+            val widgetDataUpdater = WidgetDataUpdater()
+
+            views?.let {
+                widgetDataUpdater.update(appWidgetManager, componentName,
+                    it,file, context)
+            }
 
         }
     }
 }
-
-

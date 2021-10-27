@@ -8,6 +8,16 @@
     android:background="@color/main_win_color"
     tools:context=".MainActivity">
 
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" />
+    </ScrollView>
+
     <View
         android:id="@+id/titleBack"
         android:layout_width="0dp"

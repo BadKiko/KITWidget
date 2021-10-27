@@ -28,7 +28,8 @@ import android.widget.SeekBar
 
 import android.widget.SeekBar.OnSeekBarChangeListener
 import androidx.constraintlayout.widget.ConstraintLayout
-import eltos.simpledialogfragment.color.SimpleColorDialog
+import com.github.dhaval2404.colorpicker.ColorPickerDialog
+import com.github.dhaval2404.colorpicker.model.ColorShape
 
 
 class MainActivity : AppCompatActivity() {
@@ -37,7 +38,7 @@ class MainActivity : AppCompatActivity() {
     var appWidgetManager: AppWidgetManager? = null
     var remoteViews: RemoteViews? = null
     var thisWidget: ComponentName? = null
-    var file =  File("$directory/temp.html")
+    var file: File? = null
     val widgetDataUpdater = WidgetDataUpdater()
 
 
@@ -62,7 +63,13 @@ class MainActivity : AppCompatActivity() {
 
         getDirectory() // Получаем main директорию
 
-        file = File("$directory/temp.html")
+        if (File("$directory/temp.html").exists()) {
+             file = File("$directory/temp.html")
+        } else {
+            File("$directory/temp.html").createNewFile()
+             file = File("$directory/temp.html")
+            Log.d("[FS]", "Can't delete file, file isn't exists")
+        }
 
         updateColumnsInReview()
 
@@ -140,23 +147,30 @@ class MainActivity : AppCompatActivity() {
         }
         updateButton.setOnClickListener {
             parseHTML(this);
+            widgetDataUpdater.update(appWidgetManager!!,
+                thisWidget!!, remoteViews!!, file!!, applicationContext)
         }
 
         //Цвета
         firstBtn.setOnClickListener{
-            SimpleColorDialog.build()
-                .title("Выберите цвет заднего фона")
-                .colorPreset(Color.RED)
-                .allowCustom(true)
-                .show(this);
+            ColorPickerDialog
+                .Builder(this)        				// Pass Activity Instance
+                .setTitle("Pick Theme")           	// Default "Choose Color"
+                .setColorShape(ColorShape.SQAURE)   // Default ColorShape.CIRCLE // Pass Default Color
+                .setColorListener { color, colorHex ->
+                    // Handle Color Selection
+                }
+                .show()
         }
         secondBtn.setOnClickListener{
-             SimpleColorDialog.build()
-                .title("Выберите цвет текста")
-                .colorPreset(SimpleColorDialog.MATERIAL_COLOR_PALLET_DARK)
-                .allowCustom(true)
-                .show(this);
-    
+            ColorPickerDialog
+                .Builder(this)        				// Pass Activity Instance
+                .setTitle("Pick Theme")           	// Default "Choose Color"
+                .setColorShape(ColorShape.SQAURE)   // Default ColorShape.CIRCLE // Pass Default Color
+                .setColorListener { color, colorHex ->
+                    // Handle Color Selection
+                }
+                .show()
         }
     }
 
@@ -203,6 +217,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun updateColumnsInReview(){
+        findViewById<TextView>(R.id.col1)?.text = "Расписание на завтра"
+
         findViewById<TextView>(R.id.col2)?.text = Jsoup.parse(file?.readText())
             .select("#dni-109" + widgetDataUpdater.getDate().toString() + "> b:nth-child(2)")
             .text()
@@ -236,7 +252,7 @@ class MainActivity : AppCompatActivity() {
                 thisWidget?.let { it2 ->
                     ar.takeMainThread(
                         inputSite, it,
-                        it1, it2, this, findViewById(R.id.root)
+                        it1, it2, this, findViewById(R.id.root), this
                     )
                 }
             }
@@ -259,13 +275,15 @@ class MainActivity : AppCompatActivity() {
         var thisWidget: ComponentName? = null
         var mainA: MainActivity = MainActivity()
         var rootView: View? = null
+        var context: Context? = null
         fun takeMainThread(
             inputSite: File,
             rv: RemoteViews,
             awm: AppWidgetManager,
             tw: ComponentName,
             ma: MainActivity,
-            rootV: ConstraintLayout
+            rootV: ConstraintLayout,
+            ct: Context
         ) {
             file = inputSite
             views = rv
@@ -273,6 +291,7 @@ class MainActivity : AppCompatActivity() {
             thisWidget = tw
             mainA = ma
             rootView = rootV
+            context = ct
         }
 
         override fun doInBackground(vararg params: Void?): Void? {
@@ -304,6 +323,17 @@ class MainActivity : AppCompatActivity() {
             rootView?.findViewById<TextView>(R.id.col5)?.text = Jsoup.parse(file?.readText())
                 .select("#dni-109" + widgetDataUpdater.getDate().toString() + "> b:nth-child(20)")
                 .text()
+            appWidgetManager?.let { thisWidget?.let { it1 ->
+                views?.let { it2 ->
+                    file?.let { it3 ->
+                        context?.let { it4 ->
+                            widgetDataUpdater.update(it,
+                                it1, it2, it3, it4
+                            )
+                        }
+                    }
+                }
+            } }
         }
     }
 }
