@@ -156,8 +156,7 @@ class MainActivity : AppCompatActivity() {
                 .colorPreset(SimpleColorDialog.MATERIAL_COLOR_PALLET_DARK)
                 .allowCustom(true)
                 .show(this);
-            
-            val color: Int = extras.getInt(SimpleColorDialog.COLOR)
+    
         }
     }
 
