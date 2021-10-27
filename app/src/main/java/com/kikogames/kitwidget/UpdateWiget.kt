@@ -8,7 +8,6 @@ import android.content.pm.PackageManager
 import android.os.IBinder
 import android.util.Log
 import android.widget.RemoteViews
-import org.jsoup.Jsoup
 import java.io.File
 import java.util.*
 
@@ -30,14 +29,14 @@ var directory: String = ""
         Log.d("[WIDGET INFO]", appWidgetManager.toString())
         Log.d("[WIDGET INFO]", thisWidget.className)
         Log.d("[WIDGET INFO]", views.toString())
-        widgetUpdater.update(appWidgetManager, thisWidget, views, file)
+        widgetUpdater.update(appWidgetManager, thisWidget, views, file, applicationContext)
 
         val period = 15000L
         val timer: Timer = Timer()
         val timerTask: TimerTask = object : TimerTask(){
             override fun run(){
                 Log.d("[TIMER INFO]", "UPDATE WIDGET")
-                widgetUpdater.update(appWidgetManager, thisWidget, views, file)
+                widgetUpdater.update(appWidgetManager, thisWidget, views, file, applicationContext)
             }
         }
         timer.scheduleAtFixedRate(timerTask, 0, period)

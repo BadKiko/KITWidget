@@ -2,10 +2,11 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity"
-    android:background="@color/main_win_color">
+    android:background="@color/main_win_color"
+    tools:context=".MainActivity">
 
     <View
         android:id="@+id/titleBack"
@@ -30,16 +31,27 @@
         app:layout_constraintTop_toBottomOf="@+id/update" />
 
     <View
-        android:id="@+id/widgetBack"
+        android:id="@+id/separator2"
         android:layout_width="0dp"
-        android:layout_height="299dp"
+        android:layout_height="2dp"
         android:layout_marginStart="24dp"
+        android:layout_marginTop="16dp"
         android:layout_marginEnd="24dp"
-        android:layout_marginBottom="16dp"
+        android:background="@drawable/roundseparator"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/shrift" />
+
+    <View
+        android:id="@+id/widgetBack"
+        android:layout_width="410dp"
+        android:layout_height="246dp"
+        android:layout_marginBottom="24dp"
         android:background="@drawable/widgetround"
         app:layout_constraintBottom_toTopOf="@+id/createdBy"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintHorizontal_bias="0.49"
         app:layout_constraintStart_toStartOf="parent" />
 
     <Button
@@ -60,6 +72,42 @@
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/titleBack" />
+
+    <Button
+        android:id="@+id/secondcolor"
+        android:layout_width="187dp"
+        android:layout_height="49dp"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/buttons"
+        android:backgroundTint="#D8FFCF00"
+        android:fontFamily="@font/evob"
+        android:text="Текст"
+        android:textAlignment="center"
+        android:textAllCaps="false"
+        android:textColor="@color/main_win_color"
+        android:textSize="14sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.78"
+        app:layout_constraintStart_toStartOf="@+id/firstcolor"
+        app:layout_constraintTop_toBottomOf="@+id/fontSizeTV2" />
+
+    <Button
+        android:id="@+id/firstcolor"
+        android:layout_width="187dp"
+        android:layout_height="49dp"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/buttons"
+        android:fontFamily="@font/evob"
+        android:text="Задний фон"
+        android:textAlignment="center"
+        android:textAllCaps="false"
+        android:textColor="@color/main_win_color"
+        android:textSize="14sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.03"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/fontSizeTV2" />
 
     <Button
         android:id="@+id/deleteAll"
@@ -100,16 +148,77 @@
         android:id="@+id/col1"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
         android:fontFamily="@font/evor"
         android:text="Строка 1"
         android:textAlignment="center"
         android:textColor="@color/second_color"
-        android:textSize="20sp"
+        android:textSize="14sp"
+        app:layout_constraintBottom_toBottomOf="@+id/widgetBack"
         app:layout_constraintEnd_toEndOf="@+id/widgetBack"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="@+id/widgetBack"
-        app:layout_constraintTop_toTopOf="@+id/widgetBack" />
+        app:layout_constraintTop_toTopOf="@+id/widgetBack"
+        app:layout_constraintVertical_bias="0.100000024" />
+
+    <TextView
+        android:id="@+id/col2"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:fontFamily="@font/evor"
+        android:text="Строка 2"
+        android:textAlignment="center"
+        android:textColor="@color/second_color"
+        android:textSize="14sp"
+        app:layout_constraintEnd_toEndOf="@+id/widgetBack"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/widgetBack"
+        app:layout_constraintTop_toBottomOf="@+id/wseparator" />
+
+    <TextView
+        android:id="@+id/col3"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:fontFamily="@font/evor"
+        android:text="Строка 3"
+        android:textAlignment="center"
+        android:textColor="@color/second_color"
+        android:textSize="14sp"
+        app:layout_constraintEnd_toEndOf="@+id/widgetBack"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/widgetBack"
+        app:layout_constraintTop_toBottomOf="@+id/wseparator2" />
+
+    <TextView
+        android:id="@+id/col4"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:fontFamily="@font/evor"
+        android:text="Строка 4"
+        android:textAlignment="center"
+        android:textColor="@color/second_color"
+        android:textSize="14sp"
+        app:layout_constraintEnd_toEndOf="@+id/widgetBack"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/widgetBack"
+        app:layout_constraintTop_toBottomOf="@+id/wseparator3" />
+
+    <TextView
+        android:id="@+id/col5"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:fontFamily="@font/evor"
+        android:text="Строка 5"
+        android:textAlignment="center"
+        android:textColor="@color/second_color"
+        android:textSize="14sp"
+        app:layout_constraintEnd_toEndOf="@+id/widgetBack"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/widgetBack"
+        app:layout_constraintTop_toBottomOf="@+id/wseparator4" />
 
     <View
         android:id="@+id/wseparator"
@@ -123,6 +232,45 @@
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="@+id/widgetBack"
         app:layout_constraintTop_toBottomOf="@+id/col1" />
+
+    <View
+        android:id="@+id/wseparator2"
+        android:layout_width="0dp"
+        android:layout_height="0.75dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="24dp"
+        android:background="@drawable/wroundseparator"
+        app:layout_constraintEnd_toEndOf="@+id/widgetBack"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/widgetBack"
+        app:layout_constraintTop_toBottomOf="@+id/col2" />
+
+    <View
+        android:id="@+id/wseparator3"
+        android:layout_width="0dp"
+        android:layout_height="0.75dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="24dp"
+        android:background="@drawable/wroundseparator"
+        app:layout_constraintEnd_toEndOf="@+id/widgetBack"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/widgetBack"
+        app:layout_constraintTop_toBottomOf="@+id/col3" />
+
+    <View
+        android:id="@+id/wseparator4"
+        android:layout_width="0dp"
+        android:layout_height="0.75dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="24dp"
+        android:background="@drawable/wroundseparator"
+        app:layout_constraintEnd_toEndOf="@+id/widgetBack"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/widgetBack"
+        app:layout_constraintTop_toBottomOf="@+id/col4" />
 
     <TextView
         android:id="@+id/appTitle"
@@ -155,6 +303,21 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/separator" />
 
+    <TextView
+        android:id="@+id/fontSizeTV2"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:fontFamily="@font/evob"
+        android:text="Цвета"
+        android:textAlignment="center"
+        android:textColor="@color/second_win_color"
+        android:textSize="22sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/separator2" />
+
     <SeekBar
         android:id="@+id/shrift"
         android:layout_width="349dp"
@@ -169,13 +332,12 @@
         android:splitTrack="false"
         android:thumb="@drawable/thumbswitch"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/fontSizeTV" />
 
     <androidx.constraintlayout.widget.Group
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:constraint_referenced_ids="col1,wseparator,widgetBack" />
+        app:constraint_referenced_ids="col1,wseparator,widgetBack,col5,wseparator4,col2,col3,wseparator2,col4,wseparator3" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
