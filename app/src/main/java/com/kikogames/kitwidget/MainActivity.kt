@@ -20,13 +20,10 @@ import android.widget.SeekBar
 import android.widget.SeekBar.OnSeekBarChangeListener
 import androidx.constraintlayout.widget.ConstraintLayout
 import android.content.res.ColorStateList
+import com.skydoves.colorpickerview.ColorEnvelope
 import com.skydoves.colorpickerview.listeners.ColorEnvelopeListener
 import com.skydoves.colorpickerview.ColorPickerDialog
-
-
-
-
-
+import com.skydoves.colorpickerview.kotlin.colorPickerDialog
 
 
 class MainActivity : AppCompatActivity() {
@@ -67,6 +64,13 @@ class MainActivity : AppCompatActivity() {
             Log.d("[FS]", "Can't delete file, file isn't exists")
         }
 
+        if(mSharedPrefs.contains("color_background")){
+            findViewById<View>(R.id.widgetBack).backgroundTintList = ColorStateList.valueOf(mSharedPrefs.getInt("color_background", 0))
+        }
+        if(mSharedPrefs.contains("color_text")){
+            colorizeWidgetText(findViewById(R.id.root), ColorEnvelope(mSharedPrefs.getInt("color_text", 0)))
+        }
+
         updateColumnsInReview()
 
         val fontSizeTextView = findViewById<TextView>(R.id.fontSizeTV)
@@ -79,8 +83,12 @@ class MainActivity : AppCompatActivity() {
         val firstBtn = findViewById<Button>(R.id.firstcolor)
         val secondBtn = findViewById<Button>(R.id.secondcolor)
 
-        findViewById<View>(R.id.widgetBack).layoutParams.width = widgetSizeProvider.getWidgetsSize(appWidgetManager.getAppWidgetIds(thisWidget)[0]).first-25 // Получаем размер виджета
-        findViewById<View>(R.id.widgetBack).layoutParams.height = widgetSizeProvider.getWidgetsSize(appWidgetManager.getAppWidgetIds(thisWidget)[0]).second-25 // Получаем размер виджета
+        if(appWidgetManager.getAppWidgetIds(thisWidget).size != 0) {
+            findViewById<View>(R.id.widgetBack).layoutParams.width =
+                widgetSizeProvider.getWidgetsSize(appWidgetManager.getAppWidgetIds(thisWidget)[0]).first - 25 // Получаем размер виджета
+            findViewById<View>(R.id.widgetBack).layoutParams.height =
+                widgetSizeProvider.getWidgetsSize(appWidgetManager.getAppWidgetIds(thisWidget)[0]).second - 25 // Получаем размер виджета
+        }
 
         if (!mSharedPrefs.contains("fontSize")) {
             editR.putInt("fontSize", 14)
@@ -152,12 +160,13 @@ class MainActivity : AppCompatActivity() {
 
             ColorPickerDialog.Builder(this)
                 .setTitle("Выбрать цвет заднего фона")
-                .setPreferenceName("background")
+                .setPreferenceName("color_background")
                 .setPositiveButton(getString(R.string.confirm),
                     ColorEnvelopeListener { envelope, fromUser ->
-
                         findViewById<View>(R.id.widgetBack).backgroundTintList = ColorStateList.valueOf(envelope.color)
-
+                        editR.putInt("color_background",envelope.color)
+                        editR.putInt("color_background",envelope.color)
+                        editR.apply()
                     })
                 .setNegativeButton(
                     getString(R.string.cancel)
@@ -170,20 +179,12 @@ class MainActivity : AppCompatActivity() {
         secondBtn.setOnClickListener{
             ColorPickerDialog.Builder(this)
                 .setTitle("Выбрать цвет текста")
-                .setPreferenceName("text")
+                .setPreferenceName("color_text")
                 .setPositiveButton(getString(R.string.confirm),
                     ColorEnvelopeListener { envelope, fromUser ->
-
-                        findViewById<TextView>(R.id.col1).setTextColor(envelope.color)
-                        findViewById<TextView>(R.id.col2).setTextColor(envelope.color)
-                        findViewById<TextView>(R.id.col3).setTextColor(envelope.color)
-                        findViewById<TextView>(R.id.col4).setTextColor(envelope.color)
-                        findViewById<TextView>(R.id.col5).setTextColor(envelope.color)
-
-                        findViewById<View>(R.id.wseparator).backgroundTintList = ColorStateList.valueOf(envelope.color)
-                        findViewById<View>(R.id.wseparator2).backgroundTintList = ColorStateList.valueOf(envelope.color)
-                        findViewById<View>(R.id.wseparator3).backgroundTintList = ColorStateList.valueOf(envelope.color)
-                        findViewById<View>(R.id.wseparator4).backgroundTintList = ColorStateList.valueOf(envelope.color)
+                        colorizeWidgetText(findViewById(R.id.root), envelope)
+                        editR.putInt("color_text",envelope.color)
+                        editR.apply()
                     })
                 .setNegativeButton(
                     getString(R.string.cancel)
@@ -202,6 +203,21 @@ class MainActivity : AppCompatActivity() {
     private fun updateOnce() {
         val widgetUpdater: WidgetDataUpdater = WidgetDataUpdater()
         widgetDataUpdater.update(appWidgetManager, thisWidget, remoteViews, file, applicationContext)
+    }
+
+    fun colorizeWidgetText(view: View, envelope: ColorEnvelope){
+        view.findViewById<TextView>(R.id.col1).setTextColor(envelope.color)
+        view.findViewById<TextView>(R.id.col2).setTextColor(envelope.color)
+        view.findViewById<TextView>(R.id.col3).setTextColor(envelope.color)
+        view.findViewById<TextView>(R.id.col4).setTextColor(envelope.color)
+        view.findViewById<TextView>(R.id.col5).setTextColor(envelope.color)
+        view.findViewById<TextView>(R.id.col5).backgroundTintList
+
+        view.findViewById<View>(R.id.wseparator).backgroundTintList = ColorStateList.valueOf(envelope.color)
+        view.findViewById<View>(R.id.wseparator2).backgroundTintList = ColorStateList.valueOf(envelope.color)
+        view.findViewById<View>(R.id.wseparator3).backgroundTintList = ColorStateList.valueOf(envelope.color)
+        view.findViewById<View>(R.id.wseparator4).backgroundTintList = ColorStateList.valueOf(envelope.color)
+
     }
 
     private fun debugCheck() {
