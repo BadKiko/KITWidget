@@ -1,5 +1,6 @@
 package com.kikogames.kitwidget
 
+import android.app.ActionBar
 import android.appwidget.AppWidgetManager
 import android.content.ComponentName
 import android.content.Context
@@ -20,10 +21,14 @@ import android.widget.SeekBar
 import android.widget.SeekBar.OnSeekBarChangeListener
 import androidx.constraintlayout.widget.ConstraintLayout
 import android.content.res.ColorStateList
+import android.view.ViewGroup
+import android.view.ViewGroup.MarginLayoutParams
+import androidx.core.view.updateLayoutParams
 import com.skydoves.colorpickerview.ColorEnvelope
 import com.skydoves.colorpickerview.listeners.ColorEnvelopeListener
 import com.skydoves.colorpickerview.ColorPickerDialog
 import com.skydoves.colorpickerview.kotlin.colorPickerDialog
+import org.w3c.dom.Text
 
 
 class MainActivity : AppCompatActivity() {
@@ -40,7 +45,7 @@ class MainActivity : AppCompatActivity() {
 
         val widgetSizeProvider = WidgetSizeProvider(this)
         findViewById<View>(R.id.widgetBack).layoutParams.width = widgetSizeProvider.getWidgetsSize(appWidgetManager.getAppWidgetIds(thisWidget)[0]).first-25 // Получаем размер виджета
-        findViewById<View>(R.id.widgetBack).layoutParams.height = widgetSizeProvider.getWidgetsSize(appWidgetManager.getAppWidgetIds(thisWidget)[0]).second-25 // Получаем размер виджета
+        findViewById<View>(R.id.widgetBack).layoutParams.height = widgetSizeProvider.getWidgetsSize(appWidgetManager.getAppWidgetIds(thisWidget)[0]).second-130 // Получаем размер виджета
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -75,6 +80,9 @@ class MainActivity : AppCompatActivity() {
 
         val fontSizeTextView = findViewById<TextView>(R.id.fontSizeTV)
         val seekBarFontSize = findViewById<SeekBar>(R.id.shrift)
+        val seekBarOffset = findViewById<SeekBar>(R.id.offset)
+        val offsetSizeTextView = findViewById<TextView>(R.id.offsetSizeTV)
+
         val updateButton = findViewById<Button>(R.id.update)
         val deleteButton = findViewById<Button>(R.id.deleteAll)
         val credits = findViewById<TextView>(R.id.createdBy)
@@ -110,6 +118,29 @@ class MainActivity : AppCompatActivity() {
 
             updateOnce()
         }
+
+        seekBarOffset.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                offsetSizeTextView.text = "Ширина промежутков - " + progress.toString() + "dp"
+                editR.putInt("offset", progress)
+                editR.apply()
+                Log.d(
+                    "[SP]",
+                    "Put offset $progress | Contain offset - " + mSharedPrefs.contains("offset")
+                )
+
+                val mrp = findViewById<TextView>(R.id.col3).layoutParams
+                mrp.height = seekBarOffset.progress
+            }
+
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {
+
+            }
+
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {
+                updateOnce()
+            }
+        })
 
         seekBarFontSize.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
@@ -167,6 +198,7 @@ class MainActivity : AppCompatActivity() {
                         editR.putInt("color_background",envelope.color)
                         editR.putInt("color_background",envelope.color)
                         editR.apply()
+                        updateOnce()
                     })
                 .setNegativeButton(
                     getString(R.string.cancel)
@@ -185,6 +217,7 @@ class MainActivity : AppCompatActivity() {
                         colorizeWidgetText(findViewById(R.id.root), envelope)
                         editR.putInt("color_text",envelope.color)
                         editR.apply()
+                        updateOnce()
                     })
                 .setNegativeButton(
                     getString(R.string.cancel)
@@ -213,7 +246,7 @@ class MainActivity : AppCompatActivity() {
         view.findViewById<TextView>(R.id.col5).setTextColor(envelope.color)
         view.findViewById<TextView>(R.id.col5).backgroundTintList
 
-        view.findViewById<View>(R.id.wseparator).backgroundTintList = ColorStateList.valueOf(envelope.color)
+        view.findViewById<View>(R.id.wseparator1).backgroundTintList = ColorStateList.valueOf(envelope.color)
         view.findViewById<View>(R.id.wseparator2).backgroundTintList = ColorStateList.valueOf(envelope.color)
         view.findViewById<View>(R.id.wseparator3).backgroundTintList = ColorStateList.valueOf(envelope.color)
         view.findViewById<View>(R.id.wseparator4).backgroundTintList = ColorStateList.valueOf(envelope.color)

@@ -58,6 +58,7 @@ class WidgetDataUpdater{
         Log.d("[SIZE]", mSharedPrefs.getInt("fontSize", 14).toString())
 
         if(mSharedPrefs.contains("color_background")){
+            views.setInt(R.id.imageView4, "setColorFilter", mSharedPrefs.getInt("color_background", 0))
 
         }
         if(mSharedPrefs.contains("color_text")){
@@ -66,36 +67,14 @@ class WidgetDataUpdater{
             views.setTextColor(R.id.textView2, mSharedPrefs.getInt("color_text", 0));
             views.setTextColor(R.id.textView3, mSharedPrefs.getInt("color_text", 0));
             views.setTextColor(R.id.textView4, mSharedPrefs.getInt("color_text", 0));
+
+            views.setInt(R.id.separator0, "setColorFilter", mSharedPrefs.getInt("color_text", 0))
+            views.setInt(R.id.separator1, "setColorFilter", mSharedPrefs.getInt("color_text", 0))
+            views.setInt(R.id.separator2, "setColorFilter", mSharedPrefs.getInt("color_text", 0))
+            views.setInt(R.id.separator3, "setColorFilter", mSharedPrefs.getInt("color_text", 0))
         }
 
         appWidgetManager?.updateAppWidget(appWidgetManager?.getAppWidgetIds(thisWidget)!![0], views)
-    }
-
-    fun drawableToBitmap(drawable: Drawable): Bitmap? {
-        var bitmap: Bitmap? = null
-        if (drawable is BitmapDrawable) {
-            val bitmapDrawable = drawable
-            if (bitmapDrawable.bitmap != null) {
-                return bitmapDrawable.bitmap
-            }
-        }
-        bitmap = if (drawable.intrinsicWidth <= 0 || drawable.intrinsicHeight <= 0) {
-            Bitmap.createBitmap(
-                1,
-                1,
-                Bitmap.Config.ARGB_8888
-            ) // Single color bitmap will be created of 1x1 pixel
-        } else {
-            Bitmap.createBitmap(
-                drawable.intrinsicWidth,
-                drawable.intrinsicHeight,
-                Bitmap.Config.ARGB_8888
-            )
-        }
-        val canvas = Canvas(bitmap)
-        drawable.setBounds(0, 0, canvas.width, canvas.height)
-        drawable.draw(canvas)
-        return bitmap
     }
 
 }

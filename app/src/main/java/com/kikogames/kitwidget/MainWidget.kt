@@ -46,7 +46,7 @@ class MainWidget : AppWidgetProvider() {
         view.findViewById<TextView>(R.id.col4).setTextColor(envelope.color)
         view.findViewById<TextView>(R.id.col5).setTextColor(envelope.color)
 
-        view.findViewById<View>(R.id.wseparator).backgroundTintList = ColorStateList.valueOf(envelope.color)
+        view.findViewById<View>(R.id.wseparator1).backgroundTintList = ColorStateList.valueOf(envelope.color)
         view.findViewById<View>(R.id.wseparator2).backgroundTintList = ColorStateList.valueOf(envelope.color)
         view.findViewById<View>(R.id.wseparator3).backgroundTintList = ColorStateList.valueOf(envelope.color)
         view.findViewById<View>(R.id.wseparator4).backgroundTintList = ColorStateList.valueOf(envelope.color)
@@ -68,7 +68,11 @@ class MainWidget : AppWidgetProvider() {
 
         val mSharedPrefs = context.getSharedPreferences("settings", Context.MODE_PRIVATE)
         if(mSharedPrefs.contains("color_background")){
-
+            views.setInt(R.id.imageView4, "setColorFilter", mSharedPrefs.getInt("color_background", 0))
+            views.setInt(R.id.separator0, "setColorFilter", mSharedPrefs.getInt("color_background", 0))
+            views.setInt(R.id.separator1, "setColorFilter", mSharedPrefs.getInt("color_background", 0))
+            views.setInt(R.id.separator2, "setColorFilter", mSharedPrefs.getInt("color_background", 0))
+            views.setInt(R.id.separator3, "setColorFilter", mSharedPrefs.getInt("color_background", 0))
         }
         if(mSharedPrefs.contains("color_text")){
             views.setTextColor(R.id.textView0, mSharedPrefs.getInt("color_text", 0));
