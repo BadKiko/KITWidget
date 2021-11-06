@@ -18,8 +18,6 @@ import android.os.Build
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.annotation.RequiresApi
-import com.skydoves.colorpickerview.ColorEnvelope
-
 
 /**
  * Implementation of App Widget functionality.
@@ -39,17 +37,17 @@ class MainWidget : AppWidgetProvider() {
         }
     }
 
-    fun colorizeWidgetText(view: View, envelope: ColorEnvelope){
-        view.findViewById<TextView>(R.id.col1).setTextColor(envelope.color)
-        view.findViewById<TextView>(R.id.col2).setTextColor(envelope.color)
-        view.findViewById<TextView>(R.id.col3).setTextColor(envelope.color)
-        view.findViewById<TextView>(R.id.col4).setTextColor(envelope.color)
-        view.findViewById<TextView>(R.id.col5).setTextColor(envelope.color)
+    fun colorizeWidgetText(view: View, color: Int){
+        view.findViewById<TextView>(R.id.col1).setTextColor(color)
+        view.findViewById<TextView>(R.id.col2).setTextColor(color)
+        view.findViewById<TextView>(R.id.col3).setTextColor(color)
+        view.findViewById<TextView>(R.id.col4).setTextColor(color)
+        view.findViewById<TextView>(R.id.col5).setTextColor(color)
 
-        view.findViewById<View>(R.id.wseparator).backgroundTintList = ColorStateList.valueOf(envelope.color)
-        view.findViewById<View>(R.id.wseparator2).backgroundTintList = ColorStateList.valueOf(envelope.color)
-        view.findViewById<View>(R.id.wseparator3).backgroundTintList = ColorStateList.valueOf(envelope.color)
-        view.findViewById<View>(R.id.wseparator4).backgroundTintList = ColorStateList.valueOf(envelope.color)
+        view.findViewById<View>(R.id.wseparator).backgroundTintList = ColorStateList.valueOf(color)
+        view.findViewById<View>(R.id.wseparator2).backgroundTintList = ColorStateList.valueOf(color)
+        view.findViewById<View>(R.id.wseparator3).backgroundTintList = ColorStateList.valueOf(color)
+        view.findViewById<View>(R.id.wseparator4).backgroundTintList = ColorStateList.valueOf(color)
     }
 
     internal fun updateAppWidget(

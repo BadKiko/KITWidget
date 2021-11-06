@@ -8,4 +8,11 @@
         <item name="android:background">?android:attr/colorBackground</item>
         <item name="android:textColor">?android:attr/textColorPrimary</item>
     </style>
+
+    <style name="ColorPickerDialog.Dark" parent="Theme.AppCompat.Dialog">
+        <item name="redColor">#FF5252</item>
+        <item name="greenColor">#FF5252</item>
+        <item name="blueColor">#536DFE</item>
+        <item name="neutralColor">#FFFFFF</item>
+    </style>
 </resources>

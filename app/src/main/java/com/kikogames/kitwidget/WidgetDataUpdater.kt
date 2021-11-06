@@ -28,13 +28,19 @@ import android.graphics.drawable.BitmapDrawable
 class WidgetDataUpdater{
     public fun getDate() : Int{
         val calendar: Calendar = Calendar.getInstance()
-        return calendar.get(Calendar.DAY_OF_WEEK) - 2
+        return calendar.get(Calendar.DAY_OF_WEEK) - 1
+    }
+
+    public fun getTimeInSec() : Int{
+        val calendar: Calendar = Calendar.getInstance()
+        return calendar.get(Calendar.SECOND)
     }
 
     fun update(appWidgetManager: AppWidgetManager, thisWidget: ComponentName, views: RemoteViews, file: File, context: Context) {
+
         val mSharedPrefs = context.getSharedPreferences("settings", Context.MODE_PRIVATE)
 
-
+        updateTimeChunk()
 
         Log.d("[DATE]", getDate().toString())
         views.setViewVisibility(R.id.textView0, View.VISIBLE)
@@ -69,6 +75,10 @@ class WidgetDataUpdater{
         }
 
         appWidgetManager?.updateAppWidget(appWidgetManager?.getAppWidgetIds(thisWidget)!![0], views)
+    }
+
+    fun updateTimeChunk(){
+        Log.d("[DATE]", getTimeInSec().toString())
     }
 
     fun drawableToBitmap(drawable: Drawable): Bitmap? {

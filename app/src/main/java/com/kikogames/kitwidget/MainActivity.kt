@@ -20,10 +20,11 @@ import android.widget.SeekBar
 import android.widget.SeekBar.OnSeekBarChangeListener
 import androidx.constraintlayout.widget.ConstraintLayout
 import android.content.res.ColorStateList
-import com.skydoves.colorpickerview.ColorEnvelope
-import com.skydoves.colorpickerview.listeners.ColorEnvelopeListener
-import com.skydoves.colorpickerview.ColorPickerDialog
-import com.skydoves.colorpickerview.kotlin.colorPickerDialog
+import me.jfenn.colorpickerdialog.dialogs.ColorPickerDialog
+import android.graphics.Color
+import android.os.Build
+import androidx.annotation.RequiresApi
+import me.jfenn.colorpickerdialog.views.picker.ImagePickerView
 
 
 class MainActivity : AppCompatActivity() {
@@ -68,7 +69,7 @@ class MainActivity : AppCompatActivity() {
             findViewById<View>(R.id.widgetBack).backgroundTintList = ColorStateList.valueOf(mSharedPrefs.getInt("color_background", 0))
         }
         if(mSharedPrefs.contains("color_text")){
-            colorizeWidgetText(findViewById(R.id.root), ColorEnvelope(mSharedPrefs.getInt("color_text", 0)))
+            //colorizeWidgetText(findViewById(R.id.root), Colorcolor(mSharedPrefs.getInt("color_text", 0)))
         }
 
         updateColumnsInReview()
@@ -158,41 +159,21 @@ class MainActivity : AppCompatActivity() {
         //Цвета
         firstBtn.setOnClickListener{
 
-            ColorPickerDialog.Builder(this)
-                .setTitle("Выбрать цвет заднего фона")
-                .setPreferenceName("color_background")
-                .setPositiveButton(getString(R.string.confirm),
-                    ColorEnvelopeListener { envelope, fromUser ->
-                        findViewById<View>(R.id.widgetBack).backgroundTintList = ColorStateList.valueOf(envelope.color)
-                        editR.putInt("color_background",envelope.color)
-                        editR.putInt("color_background",envelope.color)
-                        editR.apply()
-                    })
-                .setNegativeButton(
-                    getString(R.string.cancel)
-                ) { dialogInterface, i -> dialogInterface.dismiss() }
-                .attachAlphaSlideBar(true) // the default value is true.
-                .attachBrightnessSlideBar(true) // the default value is true.
-                .setBottomSpace(12) // set a bottom space between the last slidebar and buttons.
-                .show()
         }
         secondBtn.setOnClickListener{
-            ColorPickerDialog.Builder(this)
-                .setTitle("Выбрать цвет текста")
-                .setPreferenceName("color_text")
-                .setPositiveButton(getString(R.string.confirm),
-                    ColorEnvelopeListener { envelope, fromUser ->
-                        colorizeWidgetText(findViewById(R.id.root), envelope)
-                        editR.putInt("color_text",envelope.color)
-                        editR.apply()
-                    })
-                .setNegativeButton(
-                    getString(R.string.cancel)
-                ) { dialogInterface, i -> dialogInterface.dismiss() }
-                .attachAlphaSlideBar(true) // the default value is true.
-                .attachBrightnessSlideBar(true) // the default value is true.
-                .setBottomSpace(12) // set a bottom space between the last slidebar and buttons.
-                .show()
+
+            ColorPickerDialog()
+                .withPicker(ImagePickerView::class.java)
+                .withTheme(R.style.ColorPickerDialog_Dark)
+                .withCornerRadius(20f)
+                .withPresets(Color.RED, Color.GREEN, Color.BLUE)
+                .withColor(Color.RED) // the default / initial color
+                .withListener { dialog, color ->
+                    colorizeWidgetText(findViewById(R.id.root), color)
+                    editR.putInt("color_text",color)
+                    editR.apply()
+                }
+                .show(supportFragmentManager, "colorPicker")
         }
     }
 
@@ -205,18 +186,18 @@ class MainActivity : AppCompatActivity() {
         widgetDataUpdater.update(appWidgetManager, thisWidget, remoteViews, file, applicationContext)
     }
 
-    fun colorizeWidgetText(view: View, envelope: ColorEnvelope){
-        view.findViewById<TextView>(R.id.col1).setTextColor(envelope.color)
-        view.findViewById<TextView>(R.id.col2).setTextColor(envelope.color)
-        view.findViewById<TextView>(R.id.col3).setTextColor(envelope.color)
-        view.findViewById<TextView>(R.id.col4).setTextColor(envelope.color)
-        view.findViewById<TextView>(R.id.col5).setTextColor(envelope.color)
+    fun colorizeWidgetText(view: View, color: Int){
+        view.findViewById<TextView>(R.id.col1).setTextColor(color)
+        view.findViewById<TextView>(R.id.col2).setTextColor(color)
+        view.findViewById<TextView>(R.id.col3).setTextColor(color)
+        view.findViewById<TextView>(R.id.col4).setTextColor(color)
+        view.findViewById<TextView>(R.id.col5).setTextColor(color)
         view.findViewById<TextView>(R.id.col5).backgroundTintList
 
-        view.findViewById<View>(R.id.wseparator).backgroundTintList = ColorStateList.valueOf(envelope.color)
-        view.findViewById<View>(R.id.wseparator2).backgroundTintList = ColorStateList.valueOf(envelope.color)
-        view.findViewById<View>(R.id.wseparator3).backgroundTintList = ColorStateList.valueOf(envelope.color)
-        view.findViewById<View>(R.id.wseparator4).backgroundTintList = ColorStateList.valueOf(envelope.color)
+        view.findViewById<View>(R.id.wseparator).backgroundTintList = ColorStateList.valueOf(color)
+        view.findViewById<View>(R.id.wseparator2).backgroundTintList = ColorStateList.valueOf(color)
+        view.findViewById<View>(R.id.wseparator3).backgroundTintList = ColorStateList.valueOf(color)
+        view.findViewById<View>(R.id.wseparator4).backgroundTintList = ColorStateList.valueOf(color)
 
     }
 
