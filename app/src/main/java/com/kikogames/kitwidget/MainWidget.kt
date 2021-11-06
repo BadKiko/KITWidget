@@ -12,12 +12,19 @@ import android.content.pm.PackageManager
 import android.util.Log
 import android.view.View
 import android.app.PendingIntent
+<<<<<<< HEAD
 import android.content.res.ColorStateList
 import android.graphics.*
 import android.os.Build
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.annotation.RequiresApi
+=======
+
+
+
+
+>>>>>>> parent of 8bb08f9 (Try to color update)
 
 /**
  * Implementation of App Widget functionality.
@@ -37,6 +44,7 @@ class MainWidget : AppWidgetProvider() {
         }
     }
 
+<<<<<<< HEAD
     fun colorizeWidgetText(view: View, color: Int){
         view.findViewById<TextView>(R.id.col1).setTextColor(color)
         view.findViewById<TextView>(R.id.col2).setTextColor(color)
@@ -50,6 +58,8 @@ class MainWidget : AppWidgetProvider() {
         view.findViewById<View>(R.id.wseparator4).backgroundTintList = ColorStateList.valueOf(color)
     }
 
+=======
+>>>>>>> parent of 8bb08f9 (Try to color update)
     internal fun updateAppWidget(
         context: Context,
         appWidgetManager: AppWidgetManager,
@@ -63,18 +73,6 @@ class MainWidget : AppWidgetProvider() {
         takeDirectory(context) //Берем основную директорию
 
         mainHTMLFile = File("$directory/temp.html")
-
-        val mSharedPrefs = context.getSharedPreferences("settings", Context.MODE_PRIVATE)
-        if(mSharedPrefs.contains("color_background")){
-
-        }
-        if(mSharedPrefs.contains("color_text")){
-            views.setTextColor(R.id.textView0, mSharedPrefs.getInt("color_text", 0));
-            views.setTextColor(R.id.textView1, mSharedPrefs.getInt("color_text", 0));
-            views.setTextColor(R.id.textView2, mSharedPrefs.getInt("color_text", 0));
-            views.setTextColor(R.id.textView3, mSharedPrefs.getInt("color_text", 0));
-            views.setTextColor(R.id.textView4, mSharedPrefs.getInt("color_text", 0));
-        }
 
         checkOnFirstLaunch(appWidgetManager, ComponentName(context, this::class.java),
             mainHTMLFile, context
@@ -91,7 +89,6 @@ class MainWidget : AppWidgetProvider() {
         // Instruct the widget manager to update the widget
         appWidgetManager.updateAppWidget(appWidgetId, views)
     }
-
 
     fun takeDirectory(context: Context){
         val pManager: PackageManager = context.packageManager

@@ -3,27 +3,13 @@ package com.kikogames.kitwidget
 import android.appwidget.AppWidgetManager
 import android.content.ComponentName
 import android.content.Context
-import android.content.res.ColorStateList
-import android.graphics.*
-import android.graphics.drawable.ColorDrawable
-import android.graphics.drawable.Drawable
-import android.graphics.drawable.GradientDrawable
-import android.graphics.drawable.ShapeDrawable
 import android.util.Log
 import android.util.TypedValue
 import android.view.View
 import android.widget.RemoteViews
-import androidx.core.graphics.blue
-import androidx.core.graphics.drawable.DrawableCompat
 import org.jsoup.Jsoup
 import java.io.File
 import java.util.*
-import android.graphics.Bitmap
-
-import android.graphics.drawable.BitmapDrawable
-
-
-
 
 class WidgetDataUpdater{
     public fun getDate() : Int{
@@ -63,19 +49,9 @@ class WidgetDataUpdater{
         views.setTextViewTextSize(R.id.textView4, TypedValue.COMPLEX_UNIT_SP, mSharedPrefs.getInt("fontSize", 14).toFloat())
         Log.d("[SIZE]", mSharedPrefs.getInt("fontSize", 14).toString())
 
-        if(mSharedPrefs.contains("color_background")){
-
-        }
-        if(mSharedPrefs.contains("color_text")){
-            views.setTextColor(R.id.textView0, mSharedPrefs.getInt("color_text", 0));
-            views.setTextColor(R.id.textView1, mSharedPrefs.getInt("color_text", 0));
-            views.setTextColor(R.id.textView2, mSharedPrefs.getInt("color_text", 0));
-            views.setTextColor(R.id.textView3, mSharedPrefs.getInt("color_text", 0));
-            views.setTextColor(R.id.textView4, mSharedPrefs.getInt("color_text", 0));
-        }
-
         appWidgetManager?.updateAppWidget(appWidgetManager?.getAppWidgetIds(thisWidget)!![0], views)
     }
+<<<<<<< HEAD
 
     fun updateTimeChunk(){
         Log.d("[DATE]", getTimeInSec().toString())
@@ -108,4 +84,6 @@ class WidgetDataUpdater{
         return bitmap
     }
 
+=======
+>>>>>>> parent of 8bb08f9 (Try to color update)
 }

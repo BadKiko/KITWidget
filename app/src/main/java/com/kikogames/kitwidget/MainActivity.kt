@@ -20,11 +20,21 @@ import android.widget.SeekBar
 import android.widget.SeekBar.OnSeekBarChangeListener
 import androidx.constraintlayout.widget.ConstraintLayout
 import android.content.res.ColorStateList
+<<<<<<< HEAD
 import me.jfenn.colorpickerdialog.dialogs.ColorPickerDialog
 import android.graphics.Color
 import android.os.Build
 import androidx.annotation.RequiresApi
 import me.jfenn.colorpickerdialog.views.picker.ImagePickerView
+=======
+import com.skydoves.colorpickerview.listeners.ColorEnvelopeListener
+import com.skydoves.colorpickerview.ColorPickerDialog
+
+
+
+
+
+>>>>>>> parent of 8bb08f9 (Try to color update)
 
 
 class MainActivity : AppCompatActivity() {
@@ -65,6 +75,7 @@ class MainActivity : AppCompatActivity() {
             Log.d("[FS]", "Can't delete file, file isn't exists")
         }
 
+<<<<<<< HEAD
         if(mSharedPrefs.contains("color_background")){
             findViewById<View>(R.id.widgetBack).backgroundTintList = ColorStateList.valueOf(mSharedPrefs.getInt("color_background", 0))
         }
@@ -72,6 +83,8 @@ class MainActivity : AppCompatActivity() {
             //colorizeWidgetText(findViewById(R.id.root), Colorcolor(mSharedPrefs.getInt("color_text", 0)))
         }
 
+=======
+>>>>>>> parent of 8bb08f9 (Try to color update)
         updateColumnsInReview()
 
         val fontSizeTextView = findViewById<TextView>(R.id.fontSizeTV)
@@ -84,12 +97,8 @@ class MainActivity : AppCompatActivity() {
         val firstBtn = findViewById<Button>(R.id.firstcolor)
         val secondBtn = findViewById<Button>(R.id.secondcolor)
 
-        if(appWidgetManager.getAppWidgetIds(thisWidget).size != 0) {
-            findViewById<View>(R.id.widgetBack).layoutParams.width =
-                widgetSizeProvider.getWidgetsSize(appWidgetManager.getAppWidgetIds(thisWidget)[0]).first - 25 // Получаем размер виджета
-            findViewById<View>(R.id.widgetBack).layoutParams.height =
-                widgetSizeProvider.getWidgetsSize(appWidgetManager.getAppWidgetIds(thisWidget)[0]).second - 25 // Получаем размер виджета
-        }
+        findViewById<View>(R.id.widgetBack).layoutParams.width = widgetSizeProvider.getWidgetsSize(appWidgetManager.getAppWidgetIds(thisWidget)[0]).first-25 // Получаем размер виджета
+        findViewById<View>(R.id.widgetBack).layoutParams.height = widgetSizeProvider.getWidgetsSize(appWidgetManager.getAppWidgetIds(thisWidget)[0]).second-25 // Получаем размер виджета
 
         if (!mSharedPrefs.contains("fontSize")) {
             editR.putInt("fontSize", 14)
@@ -159,6 +168,7 @@ class MainActivity : AppCompatActivity() {
         //Цвета
         firstBtn.setOnClickListener{
 
+<<<<<<< HEAD
         }
         secondBtn.setOnClickListener{
 
@@ -174,6 +184,50 @@ class MainActivity : AppCompatActivity() {
                     editR.apply()
                 }
                 .show(supportFragmentManager, "colorPicker")
+=======
+            ColorPickerDialog.Builder(this)
+                .setTitle("Выбрать цвет заднего фона")
+                .setPreferenceName("background")
+                .setPositiveButton(getString(R.string.confirm),
+                    ColorEnvelopeListener { envelope, fromUser ->
+
+                        findViewById<View>(R.id.widgetBack).backgroundTintList = ColorStateList.valueOf(envelope.color)
+
+                    })
+                .setNegativeButton(
+                    getString(R.string.cancel)
+                ) { dialogInterface, i -> dialogInterface.dismiss() }
+                .attachAlphaSlideBar(true) // the default value is true.
+                .attachBrightnessSlideBar(true) // the default value is true.
+                .setBottomSpace(12) // set a bottom space between the last slidebar and buttons.
+                .show()
+        }
+        secondBtn.setOnClickListener{
+            ColorPickerDialog.Builder(this)
+                .setTitle("Выбрать цвет текста")
+                .setPreferenceName("text")
+                .setPositiveButton(getString(R.string.confirm),
+                    ColorEnvelopeListener { envelope, fromUser ->
+
+                        findViewById<TextView>(R.id.col1).setTextColor(envelope.color)
+                        findViewById<TextView>(R.id.col2).setTextColor(envelope.color)
+                        findViewById<TextView>(R.id.col3).setTextColor(envelope.color)
+                        findViewById<TextView>(R.id.col4).setTextColor(envelope.color)
+                        findViewById<TextView>(R.id.col5).setTextColor(envelope.color)
+
+                        findViewById<View>(R.id.wseparator).backgroundTintList = ColorStateList.valueOf(envelope.color)
+                        findViewById<View>(R.id.wseparator2).backgroundTintList = ColorStateList.valueOf(envelope.color)
+                        findViewById<View>(R.id.wseparator3).backgroundTintList = ColorStateList.valueOf(envelope.color)
+                        findViewById<View>(R.id.wseparator4).backgroundTintList = ColorStateList.valueOf(envelope.color)
+                    })
+                .setNegativeButton(
+                    getString(R.string.cancel)
+                ) { dialogInterface, i -> dialogInterface.dismiss() }
+                .attachAlphaSlideBar(true) // the default value is true.
+                .attachBrightnessSlideBar(true) // the default value is true.
+                .setBottomSpace(12) // set a bottom space between the last slidebar and buttons.
+                .show()
+>>>>>>> parent of 8bb08f9 (Try to color update)
         }
     }
 
@@ -186,6 +240,7 @@ class MainActivity : AppCompatActivity() {
         widgetDataUpdater.update(appWidgetManager, thisWidget, remoteViews, file, applicationContext)
     }
 
+<<<<<<< HEAD
     fun colorizeWidgetText(view: View, color: Int){
         view.findViewById<TextView>(R.id.col1).setTextColor(color)
         view.findViewById<TextView>(R.id.col2).setTextColor(color)
@@ -201,6 +256,8 @@ class MainActivity : AppCompatActivity() {
 
     }
 
+=======
+>>>>>>> parent of 8bb08f9 (Try to color update)
     private fun debugCheck() {
         if (debugMode in 5..9) {
             Toast.makeText(
