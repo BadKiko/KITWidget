@@ -9,7 +9,7 @@
     tools:context=".MainActivity">
 
     <ScrollView
-        android:layout_width="0dp"
+        android:layout_width="wrap_content"
         android:layout_height="0dp"
         app:layout_constraintBottom_toTopOf="@+id/widgetBack"
         app:layout_constraintEnd_toEndOf="parent"
@@ -73,6 +73,41 @@
                 android:thumb="@drawable/thumbswitch" />
 
             <View
+                android:id="@+id/separator4"
+                android:layout_width="wrap_content"
+                android:layout_height="3dp"
+                android:layout_marginStart="24dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginEnd="24dp"
+                android:background="@drawable/roundseparator" />
+
+            <TextView
+                android:id="@+id/offsetSizeTV"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:fontFamily="@font/evob"
+                android:text="Ширина промежутков - 16dp"
+                android:textAlignment="center"
+                android:textColor="@color/second_win_color"
+                android:textSize="22sp" />
+
+            <SeekBar
+                android:id="@+id/offset"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginStart="32dp"
+                android:layout_marginTop="12dp"
+                android:layout_marginEnd="32dp"
+                android:max="60"
+                android:min="0"
+                android:progress="14"
+                android:progressDrawable="@drawable/trackswitch"
+                android:splitTrack="false"
+                android:thumb="@drawable/thumbswitch" />
+
+
+            <View
                 android:id="@+id/separator2"
                 android:layout_width="wrap_content"
                 android:layout_height="3dp"
@@ -93,6 +128,7 @@
                 android:textSize="22sp" />
 
             <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/widgetB"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
 
@@ -134,6 +170,28 @@
                     app:layout_constraintTop_toTopOf="parent" />
             </androidx.constraintlayout.widget.ConstraintLayout>
 
+            <View
+                android:id="@+id/separator3"
+                android:layout_width="wrap_content"
+                android:layout_height="3dp"
+                android:layout_marginStart="24dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginEnd="24dp"
+                android:background="@drawable/roundseparator" />
+
+            <CheckBox
+                android:id="@+id/musicCheckbox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="24dp"
+                android:layout_marginTop="12dp"
+                android:layout_marginEnd="32dp"
+                android:fontFamily="@font/evob"
+                android:buttonTint="@color/button_color"
+                android:text="Цвета виджета под цвет обложки музыки"
+                android:textColor="@color/second_win_color"
+                android:textSize="18sp" />
+
         </LinearLayout>
     </ScrollView>
 
@@ -145,17 +203,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
-
-    <View
-        android:id="@+id/widgetBack"
-        android:layout_width="410dp"
-        android:layout_height="246dp"
-        android:layout_marginBottom="24dp"
-        android:background="@drawable/widgetround"
-        app:layout_constraintBottom_toTopOf="@+id/createdBy"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.49"
-        app:layout_constraintStart_toStartOf="parent" />
 
     <Button
         android:id="@+id/deleteAll"
@@ -175,7 +222,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/update"
         app:layout_constraintVertical_bias="0.96" />
 
     <TextView
@@ -193,134 +239,6 @@
         app:layout_constraintStart_toStartOf="parent" />
 
     <TextView
-        android:id="@+id/col1"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:fontFamily="@font/evor"
-        android:text="Строка 1"
-        android:textAlignment="center"
-        android:textColor="@color/second_color"
-        android:textSize="14sp"
-        app:layout_constraintBottom_toBottomOf="@+id/widgetBack"
-        app:layout_constraintEnd_toEndOf="@+id/widgetBack"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="@+id/widgetBack"
-        app:layout_constraintTop_toTopOf="@+id/widgetBack"
-        app:layout_constraintVertical_bias="0.100000024" />
-
-    <TextView
-        android:id="@+id/col2"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:fontFamily="@font/evor"
-        android:text="Строка 2"
-        android:textAlignment="center"
-        android:textColor="@color/second_color"
-        android:textSize="14sp"
-        app:layout_constraintEnd_toEndOf="@+id/widgetBack"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="@+id/widgetBack"
-        app:layout_constraintTop_toBottomOf="@+id/wseparator" />
-
-    <TextView
-        android:id="@+id/col3"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:fontFamily="@font/evor"
-        android:text="Строка 3"
-        android:textAlignment="center"
-        android:textColor="@color/second_color"
-        android:textSize="14sp"
-        app:layout_constraintEnd_toEndOf="@+id/widgetBack"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="@+id/widgetBack"
-        app:layout_constraintTop_toBottomOf="@+id/wseparator2" />
-
-    <TextView
-        android:id="@+id/col4"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:fontFamily="@font/evor"
-        android:text="Строка 4"
-        android:textAlignment="center"
-        android:textColor="@color/second_color"
-        android:textSize="14sp"
-        app:layout_constraintEnd_toEndOf="@+id/widgetBack"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="@+id/widgetBack"
-        app:layout_constraintTop_toBottomOf="@+id/wseparator3" />
-
-    <TextView
-        android:id="@+id/col5"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:fontFamily="@font/evor"
-        android:text="Строка 5"
-        android:textAlignment="center"
-        android:textColor="@color/second_color"
-        android:textSize="14sp"
-        app:layout_constraintEnd_toEndOf="@+id/widgetBack"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="@+id/widgetBack"
-        app:layout_constraintTop_toBottomOf="@+id/wseparator4" />
-
-    <View
-        android:id="@+id/wseparator"
-        android:layout_width="0dp"
-        android:layout_height="0.75dp"
-        android:layout_marginStart="24dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="24dp"
-        android:background="@drawable/wroundseparator"
-        app:layout_constraintEnd_toEndOf="@+id/widgetBack"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="@+id/widgetBack"
-        app:layout_constraintTop_toBottomOf="@+id/col1" />
-
-    <View
-        android:id="@+id/wseparator2"
-        android:layout_width="0dp"
-        android:layout_height="0.75dp"
-        android:layout_marginStart="24dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="24dp"
-        android:background="@drawable/wroundseparator"
-        app:layout_constraintEnd_toEndOf="@+id/widgetBack"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="@+id/widgetBack"
-        app:layout_constraintTop_toBottomOf="@+id/col2" />
-
-    <View
-        android:id="@+id/wseparator3"
-        android:layout_width="0dp"
-        android:layout_height="0.75dp"
-        android:layout_marginStart="24dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="24dp"
-        android:background="@drawable/wroundseparator"
-        app:layout_constraintEnd_toEndOf="@+id/widgetBack"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="@+id/widgetBack"
-        app:layout_constraintTop_toBottomOf="@+id/col3" />
-
-    <View
-        android:id="@+id/wseparator4"
-        android:layout_width="0dp"
-        android:layout_height="0.75dp"
-        android:layout_marginStart="24dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="24dp"
-        android:background="@drawable/wroundseparator"
-        app:layout_constraintEnd_toEndOf="@+id/widgetBack"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="@+id/widgetBack"
-        app:layout_constraintTop_toBottomOf="@+id/col4" />
-
-    <TextView
         android:id="@+id/appTitle"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -336,9 +254,145 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.36" />
 
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/widgetBack"
+        android:layout_width="411dp"
+        android:layout_height="326dp"
+        android:layout_marginBottom="16dp"
+        android:background="@drawable/widgetround"
+        app:layout_constraintBottom_toBottomOf="@+id/deleteAll"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <TextView
+            android:id="@+id/col1"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:fontFamily="@font/evob"
+            android:text="Строка 1"
+            android:textAlignment="center"
+            android:textColor="@color/second_color"
+
+            android:textSize="14sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <View
+            android:id="@+id/wseparator1"
+            android:layout_width="0dp"
+            android:layout_height="0.75dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="16dp"
+            android:background="@drawable/wroundseparator"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/col1" />
+
+        <TextView
+            android:id="@+id/col2"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:fontFamily="@font/evob"
+            android:text="Строка 2"
+            android:textAlignment="center"
+
+            android:textColor="@color/second_color"
+            android:textSize="14sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/wseparator1" />
+
+        <View
+            android:id="@+id/wseparator2"
+            android:layout_width="0dp"
+            android:layout_height="0.75dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="16dp"
+            android:background="@drawable/wroundseparator"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/col2" />
+
+
+        <TextView
+            android:id="@+id/col3"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:fontFamily="@font/evob"
+            android:text="Строка 3"
+            android:textAlignment="center"
+
+            android:textColor="@color/second_color"
+            android:textSize="14sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/wseparator2" />
+
+        <View
+            android:id="@+id/wseparator3"
+            android:layout_width="0dp"
+            android:layout_height="0.75dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="16dp"
+            android:background="@drawable/wroundseparator"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/col3" />
+
+        <TextView
+            android:id="@+id/col4"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:fontFamily="@font/evob"
+            android:text="Строка 4"
+            android:textAlignment="center"
+
+            android:textColor="@color/second_color"
+            android:textSize="14sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/wseparator3" />
+
+        <View
+            android:id="@+id/wseparator4"
+            android:layout_width="0dp"
+            android:layout_height="0.75dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="16dp"
+            android:background="@drawable/wroundseparator"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/col4" />
+
+        <TextView
+            android:id="@+id/col5"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:fontFamily="@font/evob"
+            android:text="Строка 5"
+            android:textAlignment="center"
+
+            android:textColor="@color/second_color"
+            android:textSize="14sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/wseparator4" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
     <androidx.constraintlayout.widget.Group
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:constraint_referenced_ids="col1,wseparator,widgetBack,col5,wseparator4,col2,col3,wseparator2,col4,wseparator3" />
+       />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

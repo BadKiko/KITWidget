@@ -5,8 +5,14 @@
     style="@style/Widget.KITWidget.AppWidget.Container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/widgetround"
+    android:background="@android:color/transparent"
     android:theme="@style/Theme.KITWidget.AppWidgetContainer">
+
+    <ImageView
+        android:id="@+id/imageView4"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:src="@drawable/widgetround" />
 
     <TextView
         android:id="@+id/textView0"
@@ -14,7 +20,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_marginTop="16dp"
-        android:fontFamily="sans-serif-black"
+        android:fontFamily="@font/evob"
         android:text="@string/column1"
         android:textAlignment="center"
         android:textColor="@color/second_color"
@@ -24,9 +30,9 @@
         android:id="@+id/textView1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/linearLay"
+        android:layout_below="@+id/separator0"
         android:layout_marginTop="16dp"
-        android:fontFamily="sans-serif-black"
+        android:fontFamily="@font/evob"
         android:text="@string/column2"
         android:textAlignment="center"
         android:textColor="@color/second_color"
@@ -36,9 +42,9 @@
         android:id="@+id/textView2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/linearLay2"
+        android:layout_below="@+id/separator1"
         android:layout_marginTop="16dp"
-        android:fontFamily="sans-serif-black"
+        android:fontFamily="@font/evob"
         android:text="@string/column3"
         android:textAlignment="center"
         android:textColor="@color/second_color"
@@ -48,9 +54,9 @@
         android:id="@+id/textView3"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/linearLay3"
+        android:layout_below="@+id/separator2"
         android:layout_marginTop="16dp"
-        android:fontFamily="sans-serif-black"
+        android:fontFamily="@font/evob"
         android:text="@string/column4"
         android:textAlignment="center"
         android:textColor="@color/second_color"
@@ -60,55 +66,59 @@
         android:id="@+id/textView4"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/linearLay4"
+        android:layout_below="@+id/separator3"
         android:layout_marginTop="16dp"
-        android:fontFamily="sans-serif-black"
+        android:fontFamily="@font/evob"
         android:text="@string/column5"
         android:textAlignment="center"
         android:textColor="@color/second_color"
         android:textSize="14sp" />
 
 
-    <LinearLayout
-        android:id="@+id/linearLay"
+    <ImageView
+        android:id="@+id/separator0"
         android:layout_width="match_parent"
         android:layout_height="0.75dp"
         android:layout_below="@+id/textView0"
+        android:layout_alignParentStart="true"
         android:layout_alignParentEnd="true"
-        android:layout_marginStart="10dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
         android:layout_marginTop="16dp"
-        android:layout_marginEnd="10dp"
-        android:background="@color/second_color" />
-
-    <LinearLayout
-        android:id="@+id/linearLay2"
+        android:layout_weight="1"
+        android:src="@drawable/wroundseparator" />
+    <ImageView
+        android:id="@+id/separator1"
         android:layout_width="match_parent"
         android:layout_height="0.75dp"
+        android:layout_weight="1"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
         android:layout_below="@+id/textView1"
-        android:layout_marginStart="10dp"
         android:layout_marginTop="16dp"
-        android:layout_marginEnd="10dp"
-        android:background="@color/second_color" />
+        android:src="@drawable/wroundseparator" />
 
-    <LinearLayout
-        android:id="@+id/linearLay3"
+    <ImageView
+        android:id="@+id/separator2"
         android:layout_width="match_parent"
         android:layout_height="0.75dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
         android:layout_below="@+id/textView2"
-        android:layout_marginStart="10dp"
+        android:layout_weight="1"
         android:layout_marginTop="16dp"
-        android:layout_marginEnd="10dp"
-        android:background="@color/second_color" />
+        android:src="@drawable/wroundseparator" />
 
-    <LinearLayout
-        android:id="@+id/linearLay4"
+    <ImageView
+        android:id="@+id/separator3"
         android:layout_width="match_parent"
         android:layout_height="0.75dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
         android:layout_below="@+id/textView3"
-        android:layout_marginStart="10dp"
+        android:layout_weight="1"
         android:layout_marginTop="16dp"
-        android:layout_marginEnd="10dp"
-        android:background="@color/second_color" />
+        android:src="@drawable/wroundseparator" />
 
 
 </RelativeLayout>

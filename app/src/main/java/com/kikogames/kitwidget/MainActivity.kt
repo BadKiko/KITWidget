@@ -20,21 +20,14 @@ import android.widget.SeekBar
 import android.widget.SeekBar.OnSeekBarChangeListener
 import androidx.constraintlayout.widget.ConstraintLayout
 import android.content.res.ColorStateList
-<<<<<<< HEAD
-import me.jfenn.colorpickerdialog.dialogs.ColorPickerDialog
-import android.graphics.Color
-import android.os.Build
-import androidx.annotation.RequiresApi
-import me.jfenn.colorpickerdialog.views.picker.ImagePickerView
-=======
+import android.view.ViewGroup
+import android.view.ViewGroup.MarginLayoutParams
+import androidx.core.view.updateLayoutParams
+import com.skydoves.colorpickerview.ColorEnvelope
 import com.skydoves.colorpickerview.listeners.ColorEnvelopeListener
 import com.skydoves.colorpickerview.ColorPickerDialog
-
-
-
-
-
->>>>>>> parent of 8bb08f9 (Try to color update)
+import com.skydoves.colorpickerview.kotlin.colorPickerDialog
+import org.w3c.dom.Text
 
 
 class MainActivity : AppCompatActivity() {
@@ -51,7 +44,7 @@ class MainActivity : AppCompatActivity() {
 
         val widgetSizeProvider = WidgetSizeProvider(this)
         findViewById<View>(R.id.widgetBack).layoutParams.width = widgetSizeProvider.getWidgetsSize(appWidgetManager.getAppWidgetIds(thisWidget)[0]).first-25 // Получаем размер виджета
-        findViewById<View>(R.id.widgetBack).layoutParams.height = widgetSizeProvider.getWidgetsSize(appWidgetManager.getAppWidgetIds(thisWidget)[0]).second-25 // Получаем размер виджета
+        findViewById<View>(R.id.widgetBack).layoutParams.height = widgetSizeProvider.getWidgetsSize(appWidgetManager.getAppWidgetIds(thisWidget)[0]).second-130 // Получаем размер виджета
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -75,20 +68,21 @@ class MainActivity : AppCompatActivity() {
             Log.d("[FS]", "Can't delete file, file isn't exists")
         }
 
-<<<<<<< HEAD
         if(mSharedPrefs.contains("color_background")){
             findViewById<View>(R.id.widgetBack).backgroundTintList = ColorStateList.valueOf(mSharedPrefs.getInt("color_background", 0))
         }
         if(mSharedPrefs.contains("color_text")){
-            //colorizeWidgetText(findViewById(R.id.root), Colorcolor(mSharedPrefs.getInt("color_text", 0)))
+            colorizeWidgetText(mSharedPrefs.getInt("color_text", 0))
         }
 
-=======
->>>>>>> parent of 8bb08f9 (Try to color update)
         updateColumnsInReview()
 
         val fontSizeTextView = findViewById<TextView>(R.id.fontSizeTV)
         val seekBarFontSize = findViewById<SeekBar>(R.id.shrift)
+        val seekBarOffset = findViewById<SeekBar>(R.id.offset)
+        val offsetSizeTextView = findViewById<TextView>(R.id.offsetSizeTV)
+        val musicCheckBox = findViewById<CheckBox>(R.id.musicCheckbox)
+
         val updateButton = findViewById<Button>(R.id.update)
         val deleteButton = findViewById<Button>(R.id.deleteAll)
         val credits = findViewById<TextView>(R.id.createdBy)
@@ -97,8 +91,12 @@ class MainActivity : AppCompatActivity() {
         val firstBtn = findViewById<Button>(R.id.firstcolor)
         val secondBtn = findViewById<Button>(R.id.secondcolor)
 
-        findViewById<View>(R.id.widgetBack).layoutParams.width = widgetSizeProvider.getWidgetsSize(appWidgetManager.getAppWidgetIds(thisWidget)[0]).first-25 // Получаем размер виджета
-        findViewById<View>(R.id.widgetBack).layoutParams.height = widgetSizeProvider.getWidgetsSize(appWidgetManager.getAppWidgetIds(thisWidget)[0]).second-25 // Получаем размер виджета
+        if(appWidgetManager.getAppWidgetIds(thisWidget).size != 0) {
+            findViewById<View>(R.id.widgetBack).layoutParams.width =
+                widgetSizeProvider.getWidgetsSize(appWidgetManager.getAppWidgetIds(thisWidget)[0]).first - 25 // Получаем размер виджета
+            findViewById<View>(R.id.widgetBack).layoutParams.height =
+                widgetSizeProvider.getWidgetsSize(appWidgetManager.getAppWidgetIds(thisWidget)[0]).second - 25 // Получаем размер виджета
+        }
 
         if (!mSharedPrefs.contains("fontSize")) {
             editR.putInt("fontSize", 14)
@@ -112,14 +110,39 @@ class MainActivity : AppCompatActivity() {
             fontSizeTextView.text =
                 "Размер шрифта виджета - " + seekBarFontSize.progress.toString() + "px"
 
-            findViewById<TextView>(R.id.col1).textSize = seekBarFontSize.progress.toFloat()
-            findViewById<TextView>(R.id.col2).textSize = seekBarFontSize.progress.toFloat()
-            findViewById<TextView>(R.id.col3).textSize = seekBarFontSize.progress.toFloat()
-            findViewById<TextView>(R.id.col4).textSize = seekBarFontSize.progress.toFloat()
-            findViewById<TextView>(R.id.col5).textSize = seekBarFontSize.progress.toFloat()
+            updateAllTextSizes(seekBarFontSize.progress)
 
             updateOnce()
         }
+
+
+        musicCheckBox.setOnClickListener{
+            editR.putBoolean("music", musicCheckBox.isChecked)
+            updateOnce()
+        }
+
+
+        seekBarOffset.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                offsetSizeTextView.text = "Ширина промежутков - " + progress.toString() + "dp"
+                editR.putInt("offset", progress)
+                editR.apply()
+                Log.d(
+                    "[SP]",
+                    "Put offset $progress | Contain offset - " + mSharedPrefs.contains("offset")
+                )
+
+                updateAllOffsets(progress)
+            }
+
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {
+
+            }
+
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {
+                updateOnce()
+            }
+        })
 
         seekBarFontSize.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
@@ -131,11 +154,7 @@ class MainActivity : AppCompatActivity() {
                     "Put fontSize $progress | Contain fontSize - " + mSharedPrefs.contains("fontSize")
                 )
 
-                findViewById<TextView>(R.id.col1).textSize = seekBarFontSize.progress.toFloat()
-                findViewById<TextView>(R.id.col2).textSize = seekBarFontSize.progress.toFloat()
-                findViewById<TextView>(R.id.col3).textSize = seekBarFontSize.progress.toFloat()
-                findViewById<TextView>(R.id.col4).textSize = seekBarFontSize.progress.toFloat()
-                findViewById<TextView>(R.id.col5).textSize = seekBarFontSize.progress.toFloat()
+                updateAllTextSizes(progress)
             }
 
             override fun onStartTrackingTouch(seekBar: SeekBar?) {
@@ -167,67 +186,51 @@ class MainActivity : AppCompatActivity() {
 
         //Цвета
         firstBtn.setOnClickListener{
-
-<<<<<<< HEAD
-        }
-        secondBtn.setOnClickListener{
-
             ColorPickerDialog()
                 .withPicker(ImagePickerView::class.java)
                 .withTheme(R.style.ColorPickerDialog_Dark)
                 .withCornerRadius(20f)
                 .withPresets(Color.RED, Color.GREEN, Color.BLUE)
-                .withColor(Color.RED) // the default / initial color
+                .withColor(mSharedPrefs.getInt("color_background", Color.GRAY)) // the default / initial color
                 .withListener { dialog, color ->
-                    colorizeWidgetText(findViewById(R.id.root), color)
-                    editR.putInt("color_text",color)
+                    findViewById<View>(R.id.widgetBack).backgroundTintList = ColorStateList.valueOf(color)
+                    editR.putInt("color_background",color)
                     editR.apply()
+                    updateOnce()
                 }
                 .show(supportFragmentManager, "colorPicker")
-=======
-            ColorPickerDialog.Builder(this)
-                .setTitle("Выбрать цвет заднего фона")
-                .setPreferenceName("background")
-                .setPositiveButton(getString(R.string.confirm),
-                    ColorEnvelopeListener { envelope, fromUser ->
-
-                        findViewById<View>(R.id.widgetBack).backgroundTintList = ColorStateList.valueOf(envelope.color)
-
-                    })
-                .setNegativeButton(
-                    getString(R.string.cancel)
-                ) { dialogInterface, i -> dialogInterface.dismiss() }
-                .attachAlphaSlideBar(true) // the default value is true.
-                .attachBrightnessSlideBar(true) // the default value is true.
-                .setBottomSpace(12) // set a bottom space between the last slidebar and buttons.
-                .show()
         }
         secondBtn.setOnClickListener{
-            ColorPickerDialog.Builder(this)
-                .setTitle("Выбрать цвет текста")
-                .setPreferenceName("text")
-                .setPositiveButton(getString(R.string.confirm),
-                    ColorEnvelopeListener { envelope, fromUser ->
+            ColorPickerDialog()
+                .withPicker(ImagePickerView::class.java)
+                .withTheme(R.style.ColorPickerDialog_Dark)
+                .withCornerRadius(20f)
+                .withPresets(Color.RED, Color.GREEN, Color.BLUE)
+                .withColor(mSharedPrefs.getInt("color_text", Color.GRAY)) // the default / initial color
+                .withListener { dialog, color ->
+                    colorizeWidgetText(color)
+                    editR.putInt("color_text",color)
+                    editR.apply()
+                    updateOnce()
+                }
+                .show(supportFragmentManager, "colorPicker")
+        }
+    }
 
-                        findViewById<TextView>(R.id.col1).setTextColor(envelope.color)
-                        findViewById<TextView>(R.id.col2).setTextColor(envelope.color)
-                        findViewById<TextView>(R.id.col3).setTextColor(envelope.color)
-                        findViewById<TextView>(R.id.col4).setTextColor(envelope.color)
-                        findViewById<TextView>(R.id.col5).setTextColor(envelope.color)
+    private fun updateAllTextSizes(progress: Int){
+        for (childView in findViewById<ConstraintLayout>(R.id.widgetBack).children) {
+            if(childView is TextView){
+                childView.textSize = progress.toFloat()
+            }
+        }
+    }
 
-                        findViewById<View>(R.id.wseparator).backgroundTintList = ColorStateList.valueOf(envelope.color)
-                        findViewById<View>(R.id.wseparator2).backgroundTintList = ColorStateList.valueOf(envelope.color)
-                        findViewById<View>(R.id.wseparator3).backgroundTintList = ColorStateList.valueOf(envelope.color)
-                        findViewById<View>(R.id.wseparator4).backgroundTintList = ColorStateList.valueOf(envelope.color)
-                    })
-                .setNegativeButton(
-                    getString(R.string.cancel)
-                ) { dialogInterface, i -> dialogInterface.dismiss() }
-                .attachAlphaSlideBar(true) // the default value is true.
-                .attachBrightnessSlideBar(true) // the default value is true.
-                .setBottomSpace(12) // set a bottom space between the last slidebar and buttons.
-                .show()
->>>>>>> parent of 8bb08f9 (Try to color update)
+    private fun updateAllOffsets(progress: Int){
+        for (childView in findViewById<ConstraintLayout>(R.id.widgetBack).children) {
+            val lp = childView.layoutParams as ConstraintLayout.LayoutParams
+            val density: Float = applicationContext.getResources().getDisplayMetrics().density
+            lp.setMargins(0, (progress * density).toInt(),0,0)
+            childView.layoutParams = lp
         }
     }
 
@@ -240,24 +243,17 @@ class MainActivity : AppCompatActivity() {
         widgetDataUpdater.update(appWidgetManager, thisWidget, remoteViews, file, applicationContext)
     }
 
-<<<<<<< HEAD
-    fun colorizeWidgetText(view: View, color: Int){
-        view.findViewById<TextView>(R.id.col1).setTextColor(color)
-        view.findViewById<TextView>(R.id.col2).setTextColor(color)
-        view.findViewById<TextView>(R.id.col3).setTextColor(color)
-        view.findViewById<TextView>(R.id.col4).setTextColor(color)
-        view.findViewById<TextView>(R.id.col5).setTextColor(color)
-        view.findViewById<TextView>(R.id.col5).backgroundTintList
-
-        view.findViewById<View>(R.id.wseparator).backgroundTintList = ColorStateList.valueOf(color)
-        view.findViewById<View>(R.id.wseparator2).backgroundTintList = ColorStateList.valueOf(color)
-        view.findViewById<View>(R.id.wseparator3).backgroundTintList = ColorStateList.valueOf(color)
-        view.findViewById<View>(R.id.wseparator4).backgroundTintList = ColorStateList.valueOf(color)
-
+    fun colorizeWidgetText(color: Int){
+        for (childView in findViewById<ConstraintLayout>(R.id.widgetBack).children) {
+            if(childView is TextView){
+                childView.setTextColor(color)
+            }
+            else{
+                childView.backgroundTintList = ColorStateList.valueOf(color)
+            }
+        }
     }
 
-=======
->>>>>>> parent of 8bb08f9 (Try to color update)
     private fun debugCheck() {
         if (debugMode in 5..9) {
             Toast.makeText(
