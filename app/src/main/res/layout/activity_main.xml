@@ -99,8 +99,8 @@
                 android:layout_marginStart="32dp"
                 android:layout_marginTop="12dp"
                 android:layout_marginEnd="32dp"
-                android:max="30"
-                android:min="10"
+                android:max="60"
+                android:min="0"
                 android:progress="14"
                 android:progressDrawable="@drawable/trackswitch"
                 android:splitTrack="false"
@@ -128,6 +128,7 @@
                 android:textSize="22sp" />
 
             <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/widgetB"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
 
@@ -178,6 +179,19 @@
                 android:layout_marginEnd="24dp"
                 android:background="@drawable/roundseparator" />
 
+            <CheckBox
+                android:id="@+id/musicCheckbox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="24dp"
+                android:layout_marginTop="12dp"
+                android:layout_marginEnd="32dp"
+                android:fontFamily="@font/evob"
+                android:buttonTint="@color/button_color"
+                android:text="Цвета виджета под цвет обложки музыки"
+                android:textColor="@color/second_win_color"
+                android:textSize="18sp" />
+
         </LinearLayout>
     </ScrollView>
 
@@ -208,7 +222,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/update"
         app:layout_constraintVertical_bias="0.96" />
 
     <TextView
@@ -380,6 +393,6 @@
     <androidx.constraintlayout.widget.Group
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:constraint_referenced_ids="col1,wseparator,col5,wseparator4,col2,col3,wseparator2,col4,wseparator3" />
+       />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -16,8 +16,10 @@ import android.content.res.ColorStateList
 import android.graphics.*
 import android.os.Build
 import android.widget.LinearLayout
+import android.widget.RelativeLayout
 import android.widget.TextView
 import androidx.annotation.RequiresApi
+import androidx.core.view.children
 
 
 /**
@@ -36,19 +38,6 @@ class MainWidget : AppWidgetProvider() {
         for (appWidgetId in appWidgetIds) {
             updateAppWidget(context, appWidgetManager, appWidgetId)
         }
-    }
-
-    fun colorizeWidgetText(view: View, color: Int){
-        view.findViewById<TextView>(R.id.col1).setTextColor(color)
-        view.findViewById<TextView>(R.id.col2).setTextColor(color)
-        view.findViewById<TextView>(R.id.col3).setTextColor(color)
-        view.findViewById<TextView>(R.id.col4).setTextColor(color)
-        view.findViewById<TextView>(R.id.col5).setTextColor(color)
-
-        view.findViewById<View>(R.id.wseparator1).backgroundTintList = ColorStateList.valueOf(color)
-        view.findViewById<View>(R.id.wseparator2).backgroundTintList = ColorStateList.valueOf(color)
-        view.findViewById<View>(R.id.wseparator3).backgroundTintList = ColorStateList.valueOf(color)
-        view.findViewById<View>(R.id.wseparator4).backgroundTintList = ColorStateList.valueOf(color)
     }
 
     internal fun updateAppWidget(
