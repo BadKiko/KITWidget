@@ -20,14 +20,10 @@ import android.widget.SeekBar
 import android.widget.SeekBar.OnSeekBarChangeListener
 import androidx.constraintlayout.widget.ConstraintLayout
 import android.content.res.ColorStateList
-import android.view.ViewGroup
-import android.view.ViewGroup.MarginLayoutParams
-import androidx.core.view.updateLayoutParams
-import com.skydoves.colorpickerview.ColorEnvelope
-import com.skydoves.colorpickerview.listeners.ColorEnvelopeListener
-import com.skydoves.colorpickerview.ColorPickerDialog
-import com.skydoves.colorpickerview.kotlin.colorPickerDialog
-import org.w3c.dom.Text
+import android.graphics.Color
+import androidx.core.view.children
+import me.jfenn.colorpickerdialog.dialogs.ColorPickerDialog
+import me.jfenn.colorpickerdialog.views.picker.ImagePickerView
 
 
 class MainActivity : AppCompatActivity() {
@@ -43,8 +39,13 @@ class MainActivity : AppCompatActivity() {
         super.onStart()
 
         val widgetSizeProvider = WidgetSizeProvider(this)
-        findViewById<View>(R.id.widgetBack).layoutParams.width = widgetSizeProvider.getWidgetsSize(appWidgetManager.getAppWidgetIds(thisWidget)[0]).first-25 // Получаем размер виджета
-        findViewById<View>(R.id.widgetBack).layoutParams.height = widgetSizeProvider.getWidgetsSize(appWidgetManager.getAppWidgetIds(thisWidget)[0]).second-130 // Получаем размер виджета
+
+        if(appWidgetManager.getAppWidgetIds(thisWidget).isNotEmpty()) {
+            findViewById<View>(R.id.widgetBack).layoutParams.width =
+                widgetSizeProvider.getWidgetsSize(appWidgetManager.getAppWidgetIds(thisWidget)[0]).first - 25 // Получаем размер виджета
+            findViewById<View>(R.id.widgetBack).layoutParams.height =
+                widgetSizeProvider.getWidgetsSize(appWidgetManager.getAppWidgetIds(thisWidget)[0]).second - 130 // Получаем размер виджета
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -90,13 +91,6 @@ class MainActivity : AppCompatActivity() {
 
         val firstBtn = findViewById<Button>(R.id.firstcolor)
         val secondBtn = findViewById<Button>(R.id.secondcolor)
-
-        if(appWidgetManager.getAppWidgetIds(thisWidget).size != 0) {
-            findViewById<View>(R.id.widgetBack).layoutParams.width =
-                widgetSizeProvider.getWidgetsSize(appWidgetManager.getAppWidgetIds(thisWidget)[0]).first - 25 // Получаем размер виджета
-            findViewById<View>(R.id.widgetBack).layoutParams.height =
-                widgetSizeProvider.getWidgetsSize(appWidgetManager.getAppWidgetIds(thisWidget)[0]).second - 25 // Получаем размер виджета
-        }
 
         if (!mSharedPrefs.contains("fontSize")) {
             editR.putInt("fontSize", 14)
