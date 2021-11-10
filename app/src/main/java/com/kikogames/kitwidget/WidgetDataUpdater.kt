@@ -55,31 +55,129 @@ class WidgetDataUpdater{
         val calendar: Calendar = Calendar.getInstance()
         return calendar.get(Calendar.DAY_OF_WEEK) - 2
     }
+
+    private fun getSecondsDay() : Int{
+        val calendar: Calendar = Calendar.getInstance()
+        return calendar.get(Calendar.SECOND) + calendar.get(Calendar.MINUTE) * 60 + calendar.get(Calendar.HOUR_OF_DAY) * 3600
+    }
     
     fun update(appWidgetManager: AppWidgetManager, thisWidget: ComponentName, views: RemoteViews, file: File, context: Context) {
         val mSharedPrefs = context.getSharedPreferences("settings", Context.MODE_PRIVATE)
         val density: Float = context.getResources().getDisplayMetrics().density
-        
-        views.setViewVisibility(R.id.textView0, View.VISIBLE)
-        views.setViewVisibility(R.id.textView1, View.VISIBLE)
-        views.setViewVisibility(R.id.textView3, View.VISIBLE)
-        views.setViewVisibility(R.id.textView4, View.VISIBLE)
-        views.setTextViewText(R.id.textView0, "Расписание на сегодня")
-        views.setTextViewText(R.id.textView1, Jsoup.parse(file.readText()).select("#dni-109" + getDate().toString() + "> b:nth-child(2)").text())
-        Log.d("[PARSE LOG]", Jsoup.parse(file.readText()).select("#dni-109"+getDate().toString() + "> b:nth-child(2)").text())
-        views.setTextViewText(R.id.textView2, Jsoup.parse(file.readText()).select("#dni-109"+getDate().toString() +" > b:nth-child(8)").text())
-        Log.d("[PARSE LOG]", Jsoup.parse(file.readText()).select("#dni-109"+getDate().toString() +" > b:nth-child(8)").text())
-        views.setTextViewText(R.id.textView3, Jsoup.parse(file.readText()).select("#dni-109"+getDate().toString() +" > b:nth-child(14)").text())
-        Log.d("[PARSE LOG]", Jsoup.parse(file.readText()).select("#dni-109"+getDate().toString() +" > b:nth-child(14)").text())
-        views.setTextViewText(R.id.textView4, Jsoup.parse(file.readText()).select("#dni-109"+getDate().toString() +" > b:nth-child(20)").text())
-        Log.d("[PARSE LOG]", Jsoup.parse(file.readText()).select("#dni-109"+getDate().toString() +" > b:nth-child(20)").text())
-        views.setTextViewTextSize(R.id.textView0, TypedValue.COMPLEX_UNIT_SP, mSharedPrefs.getInt("fontSize", 14).toFloat())
-        views.setTextViewTextSize(R.id.textView1, TypedValue.COMPLEX_UNIT_SP, mSharedPrefs.getInt("fontSize", 14).toFloat())
-        views.setTextViewTextSize(R.id.textView2, TypedValue.COMPLEX_UNIT_SP, mSharedPrefs.getInt("fontSize", 14).toFloat())
-        views.setTextViewTextSize(R.id.textView3, TypedValue.COMPLEX_UNIT_SP, mSharedPrefs.getInt("fontSize", 14).toFloat())
-        views.setTextViewTextSize(R.id.textView4, TypedValue.COMPLEX_UNIT_SP, mSharedPrefs.getInt("fontSize", 14).toFloat())
-        Log.d("[SIZE]", mSharedPrefs.getInt("fontSize", 14).toString())
 
+        visibleTextsView(views)
+
+        chooseNeedData(views, file, getSecondsDay())
+
+        changeSizeTextViews(mSharedPrefs, views)
+        changePaddingTextViews(mSharedPrefs, views, density)
+
+        changeColor(mSharedPrefs, views, context)
+
+        appWidgetManager.updateAppWidget(appWidgetManager.getAppWidgetIds(thisWidget)!![0], views)
+    }
+
+    private fun parseAllToTextViews(views: RemoteViews, file: File, day: Int){
+        views.setTextViewText(R.id.textView0, "Расписание на сегодня")
+        views.setTextViewText(R.id.textView1, Jsoup.parse(file.readText()).select("#dni-109" + (getDate()+day).toString() + "> b:nth-child(2)").text())
+        Log.d("[PARSE LOG]", Jsoup.parse(file.readText()).select("#dni-109"+(getDate()+day).toString() + "> b:nth-child(2)").text())
+        views.setTextViewText(R.id.textView2, Jsoup.parse(file.readText()).select("#dni-109"+(getDate()+day).toString() +" > b:nth-child(8)").text())
+        Log.d("[PARSE LOG]", Jsoup.parse(file.readText()).select("#dni-109"+(getDate()+day).toString() +" > b:nth-child(8)").text())
+        views.setTextViewText(R.id.textView3, Jsoup.parse(file.readText()).select("#dni-109"+(getDate()+day).toString() +" > b:nth-child(14)").text())
+        Log.d("[PARSE LOG]", Jsoup.parse(file.readText()).select("#dni-109"+(getDate()+day).toString() +" > b:nth-child(14)").text())
+        views.setTextViewText(R.id.textView4, Jsoup.parse(file.readText()).select("#dni-109"+(getDate()+day).toString() +" > b:nth-child(20)").text())
+        Log.d("[PARSE LOG]", Jsoup.parse(file.readText()).select("#dni-109"+(getDate()+day).toString() +" > b:nth-child(20)").text())
+    }
+
+    private fun setTextInColumns(views: RemoteViews, col1: String, col2: String, col3: String, col4: String, col5: String){
+        views.setTextViewText(R.id.textView0, col1)
+        views.setTextViewText(R.id.textView1, col2)
+        views.setTextViewText(R.id.textView2, col3)
+        views.setTextViewText(R.id.textView3, col4)
+        views.setTextViewText(R.id.textView4, col5)
+    }
+
+    private fun chooseNeedData(views: RemoteViews, file: File, seconds: Int){
+        val firstPair = Jsoup.parse(file.readText()).select("#dni-109" + (getDate()).toString() + "> b:nth-child(2)").text()
+        val secondPair = Jsoup.parse(file.readText()).select("#dni-109" + (getDate()).toString() + "> b:nth-child(8)").text()
+        val thirdPair = Jsoup.parse(file.readText()).select("#dni-109" + (getDate()).toString() + "> b:nth-child(14)").text()
+        val fourtPair = Jsoup.parse(file.readText()).select("#dni-109" + (getDate()).toString() + "> b:nth-child(20)").text()
+
+        when(seconds){
+            // 1 Урок
+            in 32400..35100 -> {
+                setTextInColumns(views, "1 половина 1 пары / 1 урок", "До конца урока "+(35100-seconds)/60+" мин", "Сейчас идет пара: $firstPair", "Будет пара: $secondPair", "Обед в:")
+
+            }
+            // Перемена 2 урока
+            in 35100..35400 -> {
+                setTextInColumns(views, "Перемена на 2 половину 1 пары", "До конца перемены "+(35400-seconds)/60+" мин", "Будет пара: $firstPair", "Обед в:", "")
+            }
+            // 2 урок
+            in 35400..38100 -> {
+                setTextInColumns(views, "2 половина 1 пары / 2 урок", "До конца урока "+(38100-seconds)/60+" мин", "Сейчас идет пара: $firstPair", "Будет пара: $secondPair", "Обед в:")
+            }
+            // Перемена 3 урока
+            in 38100..39900 -> {
+                setTextInColumns(views, "Перемена на 1 половину 2 пары", "До конца перемены "+(39900-seconds)/60+" мин", "Будет пара: $secondPair", "Обед в:", "")
+            }
+            // 3 урок
+            in 39900..42600 -> {
+                setTextInColumns(views, "1 половина 2 пары / 3 урок", "До конца урока "+(42600-seconds)/60+" мин", "Сейчас идет пара: $secondPair", "Будет пара: $thirdPair", "Обед в:")
+            }
+            // Перемена 4 урока
+            in 42600..42900 -> {
+                setTextInColumns(views, "Перемена на 2 половину 2 пары", "До конца перемены "+(42900-seconds)/60+" мин", "Будет пара: $secondPair", "Обед в:", "")
+            }
+            // 4 урок
+            in 42900..45600 -> {
+                setTextInColumns(views, "2 половина 2 пары / 4 урок", "До конца урока "+(45600-seconds)/60+" мин", "Сейчас идет пара: $secondPair", "Будет пара: $thirdPair", "Обед в:")
+            }
+            // Перемена 5 урока
+            in 45600..47400 -> {
+                setTextInColumns(views, "Перемена на 1 половину 3 пары", "До конца перемены "+(47400-seconds)/60+" мин", "Будет пара: $thirdPair", "Обед в:", "")
+            }
+            // 5 урок
+            in 47400..50100 -> {
+                setTextInColumns(views, "1 половина 3 пары / 5 урок", "До конца урока "+(50100-seconds)/60+":"+" мин", "Сейчас идет пара: $thirdPair", "Будет пара: $fourtPair", "Обед в:")
+            }
+            // Перемена 6 урока
+            in 50100..50400 -> {
+                setTextInColumns(views, "Перемена на 2 половину 3 пары", "До конца перемены "+(50400-seconds)/60+" мин", "Будет пара: $thirdPair", "Обед в:", "")
+            }
+            // 6 урок
+            in 50400..53100 -> {
+                setTextInColumns(views, "2 половина 3 пары / 6 урок", "До конца урока "+(53100-seconds)/60+" мин", "Сейчас идет пара: $thirdPair", "Будет пара: $fourtPair", "Обед в:")
+            }
+            // Перемена 7 урока
+            in 53100..53700 -> {
+                setTextInColumns(views, "Перемена на 1 половину 4 пары", "До конца перемены "+(53700-seconds)/60+" мин", "Будет пара: $fourtPair", "Обед в:", "")
+            }
+            // 7 урок
+            in 53700..56400 -> {
+                setTextInColumns(views, "1 половина 4 пары / 7 урок", "До конца урока "+(56400-seconds)/60+" мин", "Сейчас идет пара: $fourtPair", "Домой!", "Обед в:")
+            }
+            // Перемена 8 урока
+            in 56400..56700 -> {
+                setTextInColumns(views, "Перемена на 2 половину 4 пары", "До конца перемены "+(56700-seconds)/60+" мин", "Будет пара: $fourtPair", "Обед в:", "")
+            }
+            // 8 урок
+            in 56700..59400 -> {
+                setTextInColumns(views, "2 половина 4 пары / 8 урок", "До конца урока "+(59400-seconds)/60+" мин", "Сейчас идет пара: $fourtPair", "Домой!", "Обед в:")
+            }
+
+            // Утро до коляги
+            in 0..32400 -> {
+                parseAllToTextViews(views, file, 0)
+            }
+            // Вечер после коляги
+            in 59400..86400 -> {
+                parseAllToTextViews(views, file, 0)
+            }
+        }
+    }
+
+    private fun changePaddingTextViews(mSharedPrefs: SharedPreferences, views: RemoteViews, density: Float){
         views.setViewPadding(R.id.textView0, 0,
             (density * mSharedPrefs.getInt("offset", 16)).toInt(),0,(density * mSharedPrefs.getInt("offset", 16)).toInt())
         views.setViewPadding(R.id.textView1, 0,
@@ -90,11 +188,15 @@ class WidgetDataUpdater{
             (density * mSharedPrefs.getInt("offset", 16)).toInt(),0,(density * mSharedPrefs.getInt("offset", 16)).toInt())
         views.setViewPadding(R.id.textView4, 0,
             (density * mSharedPrefs.getInt("offset", 16)).toInt(),0,(density * mSharedPrefs.getInt("offset", 16)).toInt())
+    }
 
-        
-        changeColor(mSharedPrefs, views, context)
-
-        appWidgetManager.updateAppWidget(appWidgetManager.getAppWidgetIds(thisWidget)!![0], views)
+    private fun changeSizeTextViews(mSharedPrefs: SharedPreferences, views: RemoteViews){
+        views.setTextViewTextSize(R.id.textView0, TypedValue.COMPLEX_UNIT_SP, mSharedPrefs.getInt("fontSize", 14).toFloat())
+        views.setTextViewTextSize(R.id.textView1, TypedValue.COMPLEX_UNIT_SP, mSharedPrefs.getInt("fontSize", 14).toFloat())
+        views.setTextViewTextSize(R.id.textView2, TypedValue.COMPLEX_UNIT_SP, mSharedPrefs.getInt("fontSize", 14).toFloat())
+        views.setTextViewTextSize(R.id.textView3, TypedValue.COMPLEX_UNIT_SP, mSharedPrefs.getInt("fontSize", 14).toFloat())
+        views.setTextViewTextSize(R.id.textView4, TypedValue.COMPLEX_UNIT_SP, mSharedPrefs.getInt("fontSize", 14).toFloat())
+        Log.d("[SIZE]", mSharedPrefs.getInt("fontSize", 14).toString())
     }
 
     private fun changeColor(mSharedPrefs: SharedPreferences, views: RemoteViews, context: Context){
@@ -135,6 +237,13 @@ class WidgetDataUpdater{
                 )
             }
 
+    }
+
+    private fun visibleTextsView(views: RemoteViews){
+        views.setViewVisibility(R.id.textView0, View.VISIBLE)
+        views.setViewVisibility(R.id.textView1, View.VISIBLE)
+        views.setViewVisibility(R.id.textView3, View.VISIBLE)
+        views.setViewVisibility(R.id.textView4, View.VISIBLE)
     }
 
     class MainReceiver : BroadcastReceiver() {

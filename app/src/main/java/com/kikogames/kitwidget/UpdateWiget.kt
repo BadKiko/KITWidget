@@ -3,6 +3,7 @@ package com.kikogames.kitwidget
 import android.app.Service
 import android.appwidget.AppWidgetManager
 import android.content.ComponentName
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.IBinder
@@ -31,7 +32,9 @@ var directory: String = ""
         Log.d("[WIDGET INFO]", views.toString())
         widgetUpdater.update(appWidgetManager, thisWidget, views, file, applicationContext)
 
-        val period = 15000L
+        val mSharedPrefs = applicationContext.getSharedPreferences("settings", Context.MODE_PRIVATE)
+
+        val period = mSharedPrefs.getLong("period", 15000L)
         val timer: Timer = Timer()
         val timerTask: TimerTask = object : TimerTask(){
             override fun run(){

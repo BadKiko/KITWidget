@@ -39,12 +39,13 @@ class MainActivity : AppCompatActivity() {
         super.onStart()
 
         val widgetSizeProvider = WidgetSizeProvider(this)
+        val density: Float = applicationContext.getResources().getDisplayMetrics().density
 
         if(appWidgetManager.getAppWidgetIds(thisWidget).isNotEmpty()) {
             findViewById<View>(R.id.widgetBack).layoutParams.width =
-                widgetSizeProvider.getWidgetsSize(appWidgetManager.getAppWidgetIds(thisWidget)[0]).first - 25 // Получаем размер виджета
+                widgetSizeProvider.getWidgetsSize(appWidgetManager.getAppWidgetIds(thisWidget)[0]).first -25 // Получаем размер виджета
             findViewById<View>(R.id.widgetBack).layoutParams.height =
-                widgetSizeProvider.getWidgetsSize(appWidgetManager.getAppWidgetIds(thisWidget)[0]).second - 130 // Получаем размер виджета
+                widgetSizeProvider.getWidgetsSize(appWidgetManager.getAppWidgetIds(thisWidget)[0]).second - 165// Получаем размер виджета
         }
     }
 
@@ -102,9 +103,26 @@ class MainActivity : AppCompatActivity() {
         } else {
             seekBarFontSize.progress = mSharedPrefs.getInt("fontSize", 14)
             fontSizeTextView.text =
-                "Размер шрифта виджета - " + seekBarFontSize.progress.toString() + "px"
+                "Размер шрифта виджета - " + seekBarFontSize.progress.toString() + "dp"
 
             updateAllTextSizes(seekBarFontSize.progress)
+
+            updateOnce()
+        }
+
+        if (!mSharedPrefs.contains("offset")) {
+            editR.putInt("offset", 16)
+            editR.apply()
+            Log.d(
+                "[SP]",
+                "Put offset 16 | Contain offset - " + mSharedPrefs.contains("offset")
+            )
+        } else {
+            seekBarOffset.progress = mSharedPrefs.getInt("offset", 14)
+            offsetSizeTextView.text =
+                "Ширина промежутков - " + seekBarOffset.progress.toString() + "dp"
+
+            updateAllOffsets(seekBarOffset.progress)
 
             updateOnce()
         }
@@ -209,6 +227,8 @@ class MainActivity : AppCompatActivity() {
                 }
                 .show(supportFragmentManager, "colorPicker")
         }
+
+        startUpdating()
     }
 
     private fun updateAllTextSizes(progress: Int){
@@ -273,7 +293,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun updateColumnsInReview(){
-        findViewById<TextView>(R.id.col1).text = "Расписание на завтра"
+        findViewById<TextView>(R.id.col1).text = "Расписание на сегодня"
 
         findViewById<TextView>(R.id.col2).text = Jsoup.parse(file.readText())
             .select("#dni-109" + widgetDataUpdater.getDate().toString() + "> b:nth-child(2)")
