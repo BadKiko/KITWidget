@@ -1,5 +1,6 @@
 package com.kikogames.kitwidget
 
+import android.app.AlarmManager
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
 import android.content.ComponentName
@@ -15,6 +16,7 @@ import android.app.PendingIntent
 import android.content.res.ColorStateList
 import android.graphics.*
 import android.os.Build
+import android.os.SystemClock
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import android.widget.TextView
@@ -54,6 +56,16 @@ class MainWidget : AppWidgetProvider() {
 
         mainHTMLFile = File("$directory/temp.html")
 
+        context.startService(Intent(context, UpdateWiget::class.java))
+
+        val alarmM = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+
+        val intent = Intent(context, MainActivity::class.java)
+
+        val pendingIntent = PendingIntent.getActivity(context, 0, intent, 0)
+
+        alarmM.setRepeating(AlarmManager.ELAPSED_REALTIME, SystemClock.elapsedRealtime(), 10000, pendingIntent)
+
         val mSharedPrefs = context.getSharedPreferences("settings", Context.MODE_PRIVATE)
         if(mSharedPrefs.contains("color_background")){
             views.setInt(R.id.imageView4, "setColorFilter", mSharedPrefs.getInt("color_background", 0))
@@ -76,9 +88,6 @@ class MainWidget : AppWidgetProvider() {
 
         Log.d("WIDGET INFO *M*", appWidgetId.toString())
         Log.d("WIDGET INFO *M*", views.toString())
-
-        val intent = Intent(context, MainActivity::class.java)
-        val pendingIntent = PendingIntent.getActivity(context, 0, intent, 0)
 
         views.setOnClickPendingIntent(R.id.mainwidget, pendingIntent);
 

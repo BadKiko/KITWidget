@@ -60,7 +60,7 @@ class WidgetDataUpdater{
         val calendar: Calendar = Calendar.getInstance()
         return calendar.get(Calendar.SECOND) + calendar.get(Calendar.MINUTE) * 60 + calendar.get(Calendar.HOUR_OF_DAY) * 3600
     }
-    
+
     fun update(appWidgetManager: AppWidgetManager, thisWidget: ComponentName, views: RemoteViews, file: File, context: Context) {
         val mSharedPrefs = context.getSharedPreferences("settings", Context.MODE_PRIVATE)
         val density: Float = context.getResources().getDisplayMetrics().density
@@ -78,7 +78,13 @@ class WidgetDataUpdater{
     }
 
     private fun parseAllToTextViews(views: RemoteViews, file: File, day: Int){
-        views.setTextViewText(R.id.textView0, "Расписание на сегодня")
+        if (day == 0){
+            views.setTextViewText(R.id.textView0, "Расписание на сегодня")
+        }
+        else if(day == 1){
+            views.setTextViewText(R.id.textView0, "Расписание на завтра")
+        }
+
         views.setTextViewText(R.id.textView1, Jsoup.parse(file.readText()).select("#dni-109" + (getDate()+day).toString() + "> b:nth-child(2)").text())
         Log.d("[PARSE LOG]", Jsoup.parse(file.readText()).select("#dni-109"+(getDate()+day).toString() + "> b:nth-child(2)").text())
         views.setTextViewText(R.id.textView2, Jsoup.parse(file.readText()).select("#dni-109"+(getDate()+day).toString() +" > b:nth-child(8)").text())
@@ -102,68 +108,69 @@ class WidgetDataUpdater{
         val secondPair = Jsoup.parse(file.readText()).select("#dni-109" + (getDate()).toString() + "> b:nth-child(8)").text()
         val thirdPair = Jsoup.parse(file.readText()).select("#dni-109" + (getDate()).toString() + "> b:nth-child(14)").text()
         val fourtPair = Jsoup.parse(file.readText()).select("#dni-109" + (getDate()).toString() + "> b:nth-child(20)").text()
+        val foodTime = arrayOf("10:50","ДО","12:20", "11:50", "12:50", "12:20")
 
         when(seconds){
             // 1 Урок
             in 32400..35100 -> {
-                setTextInColumns(views, "1 половина 1 пары / 1 урок", "До конца урока "+(35100-seconds)/60+" мин", "Сейчас идет пара: $firstPair", "Будет пара: $secondPair", "Обед в:")
+                setTextInColumns(views, "1 половина 1 пары / 1 урок", "До конца урока "+(35100-seconds+60+60)/60+" мин", "Сейчас идет пара: $firstPair", "Будет пара: $secondPair", "Обед в: "+foodTime[getDate()])
 
             }
             // Перемена 2 урока
             in 35100..35400 -> {
-                setTextInColumns(views, "Перемена на 2 половину 1 пары", "До конца перемены "+(35400-seconds)/60+" мин", "Будет пара: $firstPair", "Обед в:", "")
+                setTextInColumns(views, "Перемена на 2 половину 1 пары", "До конца перемены "+(35400-seconds+60)/60+" мин", "Будет пара: $firstPair", "Обед в: "+foodTime[getDate()], "")
             }
             // 2 урок
             in 35400..38100 -> {
-                setTextInColumns(views, "2 половина 1 пары / 2 урок", "До конца урока "+(38100-seconds)/60+" мин", "Сейчас идет пара: $firstPair", "Будет пара: $secondPair", "Обед в:")
+                setTextInColumns(views, "2 половина 1 пары / 2 урок", "До конца урока "+(38100-seconds+60)/60+" мин", "Сейчас идет пара: $firstPair", "Будет пара: $secondPair", "Обед в: "+foodTime[getDate()])
             }
             // Перемена 3 урока
             in 38100..39900 -> {
-                setTextInColumns(views, "Перемена на 1 половину 2 пары", "До конца перемены "+(39900-seconds)/60+" мин", "Будет пара: $secondPair", "Обед в:", "")
+                setTextInColumns(views, "Перемена на 1 половину 2 пары", "До конца перемены "+(39900-seconds+60)/60+" мин", "Будет пара: $secondPair", "Обед в: "+foodTime[getDate()] ,"")
             }
             // 3 урок
             in 39900..42600 -> {
-                setTextInColumns(views, "1 половина 2 пары / 3 урок", "До конца урока "+(42600-seconds)/60+" мин", "Сейчас идет пара: $secondPair", "Будет пара: $thirdPair", "Обед в:")
+                setTextInColumns(views, "1 половина 2 пары / 3 урок", "До конца урока "+(42600-seconds+60)/60+" мин", "Сейчас идет пара: $secondPair", "Будет пара: $thirdPair", "Обед в: "+foodTime[getDate()])
             }
             // Перемена 4 урока
             in 42600..42900 -> {
-                setTextInColumns(views, "Перемена на 2 половину 2 пары", "До конца перемены "+(42900-seconds)/60+" мин", "Будет пара: $secondPair", "Обед в:", "")
+                setTextInColumns(views, "Перемена на 2 половину 2 пары", "До конца перемены "+(42900-seconds+60)/60+" мин", "Будет пара: $secondPair", "Обед в: "+foodTime[getDate()], "")
             }
             // 4 урок
             in 42900..45600 -> {
-                setTextInColumns(views, "2 половина 2 пары / 4 урок", "До конца урока "+(45600-seconds)/60+" мин", "Сейчас идет пара: $secondPair", "Будет пара: $thirdPair", "Обед в:")
+                setTextInColumns(views, "2 половина 2 пары / 4 урок", "До конца урока "+(45600-seconds+60)/60+" мин", "Сейчас идет пара: $secondPair", "Будет пара: $thirdPair", "Обед в: "+foodTime[getDate()])
             }
             // Перемена 5 урока
             in 45600..47400 -> {
-                setTextInColumns(views, "Перемена на 1 половину 3 пары", "До конца перемены "+(47400-seconds)/60+" мин", "Будет пара: $thirdPair", "Обед в:", "")
+                setTextInColumns(views, "Перемена на 1 половину 3 пары", "До конца перемены "+(47400-seconds+60)/60+" мин", "Будет пара: $thirdPair", "Обед в: "+foodTime[getDate()], "")
             }
             // 5 урок
             in 47400..50100 -> {
-                setTextInColumns(views, "1 половина 3 пары / 5 урок", "До конца урока "+(50100-seconds)/60+":"+" мин", "Сейчас идет пара: $thirdPair", "Будет пара: $fourtPair", "Обед в:")
+                setTextInColumns(views, "1 половина 3 пары / 5 урок", "До конца урока "+(50100-seconds+60)/60+" мин", "Сейчас идет пара: $thirdPair", "Будет пара: $fourtPair", "Обед в: "+foodTime[getDate()])
             }
             // Перемена 6 урока
             in 50100..50400 -> {
-                setTextInColumns(views, "Перемена на 2 половину 3 пары", "До конца перемены "+(50400-seconds)/60+" мин", "Будет пара: $thirdPair", "Обед в:", "")
+                setTextInColumns(views, "Перемена на 2 половину 3 пары", "До конца перемены "+(50400-seconds+60)/60+" мин", "Будет пара: $thirdPair", "Обед в: "+foodTime[getDate()], "")
             }
             // 6 урок
             in 50400..53100 -> {
-                setTextInColumns(views, "2 половина 3 пары / 6 урок", "До конца урока "+(53100-seconds)/60+" мин", "Сейчас идет пара: $thirdPair", "Будет пара: $fourtPair", "Обед в:")
+                setTextInColumns(views, "2 половина 3 пары / 6 урок", "До конца урока "+(53100-seconds+60)/60+" мин", "Сейчас идет пара: $thirdPair", "Будет пара: $fourtPair", "Обед в: "+foodTime[getDate()])
             }
             // Перемена 7 урока
             in 53100..53700 -> {
-                setTextInColumns(views, "Перемена на 1 половину 4 пары", "До конца перемены "+(53700-seconds)/60+" мин", "Будет пара: $fourtPair", "Обед в:", "")
+                setTextInColumns(views, "Перемена на 1 половину 4 пары", "До конца перемены "+(53700-seconds+60)/60+" мин", "Будет пара: $fourtPair", "Обед в: "+foodTime[getDate()], "")
             }
             // 7 урок
             in 53700..56400 -> {
-                setTextInColumns(views, "1 половина 4 пары / 7 урок", "До конца урока "+(56400-seconds)/60+" мин", "Сейчас идет пара: $fourtPair", "Домой!", "Обед в:")
+                setTextInColumns(views, "1 половина 4 пары / 7 урок", "До конца урока "+(56400-seconds+60)/60+" мин", "Сейчас идет пара: $fourtPair", "Домой!", "Обед в: "+foodTime[getDate()])
             }
             // Перемена 8 урока
             in 56400..56700 -> {
-                setTextInColumns(views, "Перемена на 2 половину 4 пары", "До конца перемены "+(56700-seconds)/60+" мин", "Будет пара: $fourtPair", "Обед в:", "")
+                setTextInColumns(views, "Перемена на 2 половину 4 пары", "До конца перемены "+(56700-seconds+60)/60+" мин", "Будет пара: $fourtPair", "Обед в: "+foodTime[getDate()], "")
             }
             // 8 урок
             in 56700..59400 -> {
-                setTextInColumns(views, "2 половина 4 пары / 8 урок", "До конца урока "+(59400-seconds)/60+" мин", "Сейчас идет пара: $fourtPair", "Домой!", "Обед в:")
+                setTextInColumns(views, "2 половина 4 пары / 8 урок", "До конца урока "+(59400-seconds+60)/60+" мин", "Сейчас идет пара: $fourtPair", "Домой!", "Обед в: "+foodTime[getDate()])
             }
 
             // Утро до коляги
@@ -172,7 +179,7 @@ class WidgetDataUpdater{
             }
             // Вечер после коляги
             in 59400..86400 -> {
-                parseAllToTextViews(views, file, 0)
+                parseAllToTextViews(views, file, 1)
             }
         }
     }
