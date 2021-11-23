@@ -1,6 +1,5 @@
 package com.kikogames.kitwidget
 
-import android.app.AlarmManager
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
 import android.content.ComponentName
@@ -13,20 +12,7 @@ import android.content.pm.PackageManager
 import android.util.Log
 import android.view.View
 import android.app.PendingIntent
-import android.content.res.ColorStateList
-import android.graphics.*
-import android.os.Build
-import android.os.SystemClock
-import android.widget.LinearLayout
-import android.widget.RelativeLayout
-import android.widget.TextView
-import androidx.annotation.RequiresApi
-import androidx.core.view.children
 
-
-/**
- * Implementation of App Widget functionality.
- */
 class MainWidget : AppWidgetProvider() {
     lateinit var views: RemoteViews
     lateinit var directory: String
@@ -48,27 +34,24 @@ class MainWidget : AppWidgetProvider() {
         appWidgetId: Int
     )
     {
-
         // Construct the RemoteViews object
         views = RemoteViews(context.packageName, R.layout.main_widget)
+        val mSharedPrefs = context.getSharedPreferences("settings", Context.MODE_PRIVATE)
+
+        if(mSharedPrefs.getBoolean("music", false)){
+            context.startService(Intent(context, MusicArt::class.java))
+        }
 
         takeDirectory(context) //Берем основную директорию
 
         mainHTMLFile = File("$directory/temp.html")
 
-        context.startService(Intent(context, UpdateWiget::class.java))
-
-        val alarmM = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-
         val intent = Intent(context, MainActivity::class.java)
 
         val pendingIntent = PendingIntent.getActivity(context, 0, intent, 0)
 
-        alarmM.setRepeating(AlarmManager.ELAPSED_REALTIME, SystemClock.elapsedRealtime(), 10000, pendingIntent)
-
-        val mSharedPrefs = context.getSharedPreferences("settings", Context.MODE_PRIVATE)
         if(mSharedPrefs.contains("color_background")){
-            views.setInt(R.id.imageView4, "setColorFilter", mSharedPrefs.getInt("color_background", 0))
+            views.setInt(R.id.backOfMainW, "setColorFilter", mSharedPrefs.getInt("color_background", 0))
             views.setInt(R.id.separator0, "setColorFilter", mSharedPrefs.getInt("color_background", 0))
             views.setInt(R.id.separator1, "setColorFilter", mSharedPrefs.getInt("color_background", 0))
             views.setInt(R.id.separator2, "setColorFilter", mSharedPrefs.getInt("color_background", 0))
@@ -94,7 +77,6 @@ class MainWidget : AppWidgetProvider() {
         // Instruct the widget manager to update the widget
         appWidgetManager.updateAppWidget(appWidgetId, views)
     }
-
 
     fun takeDirectory(context: Context){
         val pManager: PackageManager = context.packageManager

@@ -1,5 +1,7 @@
 package com.kikogames.kitwidget
 
+import android.app.AlarmManager
+import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
 import android.content.ComponentName
 import android.content.Context
@@ -24,7 +26,15 @@ import android.graphics.Color
 import androidx.core.view.children
 import me.jfenn.colorpickerdialog.dialogs.ColorPickerDialog
 import me.jfenn.colorpickerdialog.views.picker.ImagePickerView
-
+import java.util.*
+import android.content.IntentFilter
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.drawable.Drawable
+import android.graphics.drawable.Icon
+import androidx.core.graphics.drawable.toBitmap
+import androidx.core.graphics.drawable.toDrawable
+import java.lang.Exception
 
 class MainActivity : AppCompatActivity() {
     lateinit var directory: String
@@ -34,6 +44,31 @@ class MainActivity : AppCompatActivity() {
     lateinit var thisWidget: ComponentName
     lateinit var file: File
     val widgetDataUpdater = WidgetDataUpdater()
+    var imw: ImageView? = null
+
+    override fun onResume() {
+        super.onResume()
+
+        val musicCheckBox = findViewById<CheckBox>(R.id.musicCheckbox)
+
+        val mSharedPrefs = applicationContext.getSharedPreferences("settings", Context.MODE_PRIVATE)
+        val editR = mSharedPrefs.edit()
+
+        musicCheckBox.isChecked = mSharedPrefs.getBoolean("music", false)
+        if(musicCheckBox.isChecked){
+            startService(Intent(this, MusicArt::class.java))
+        }
+        musicCheckBox.setOnCheckedChangeListener { buttonView, isChecked ->
+            editR.putBoolean("music", isChecked)
+            editR.apply()
+            if(isChecked){
+                startService(Intent(this, MusicArt::class.java))
+            }
+            else {
+                stopService(Intent(this, MusicArt::class.java))
+            }
+        }
+    }
 
     override fun onStart() {
         super.onStart()
@@ -43,9 +78,9 @@ class MainActivity : AppCompatActivity() {
 
         if(appWidgetManager.getAppWidgetIds(thisWidget).isNotEmpty()) {
             findViewById<View>(R.id.widgetBack).layoutParams.width =
-                widgetSizeProvider.getWidgetsSize(appWidgetManager.getAppWidgetIds(thisWidget)[0]).first -25 // Получаем размер виджета
+                widgetSizeProvider.getWidgetsSize(appWidgetManager.getAppWidgetIds(thisWidget)[0]).first // Получаем размер виджета
             findViewById<View>(R.id.widgetBack).layoutParams.height =
-                widgetSizeProvider.getWidgetsSize(appWidgetManager.getAppWidgetIds(thisWidget)[0]).second - 165// Получаем размер виджета
+                widgetSizeProvider.getWidgetsSize(appWidgetManager.getAppWidgetIds(thisWidget)[0]).second // Получаем размер виджета
         }
     }
 
@@ -63,13 +98,12 @@ class MainActivity : AppCompatActivity() {
         getDirectory() // Получаем main директорию
 
         if (File("$directory/temp.html").exists()) {
-             file = File("$directory/temp.html")
+            file = File("$directory/temp.html")
         } else {
             File("$directory/temp.html").createNewFile()
-             file = File("$directory/temp.html")
+            file = File("$directory/temp.html")
             Log.d("[FS]", "Can't delete file, file isn't exists")
         }
-
         if(mSharedPrefs.contains("color_background")){
             findViewById<View>(R.id.widgetBack).backgroundTintList = ColorStateList.valueOf(mSharedPrefs.getInt("color_background", 0))
         }
@@ -83,7 +117,6 @@ class MainActivity : AppCompatActivity() {
         val seekBarFontSize = findViewById<SeekBar>(R.id.shrift)
         val seekBarOffset = findViewById<SeekBar>(R.id.offset)
         val offsetSizeTextView = findViewById<TextView>(R.id.offsetSizeTV)
-        val musicCheckBox = findViewById<CheckBox>(R.id.musicCheckbox)
 
         val updateButton = findViewById<Button>(R.id.update)
         val deleteButton = findViewById<Button>(R.id.deleteAll)
@@ -92,6 +125,9 @@ class MainActivity : AppCompatActivity() {
 
         val firstBtn = findViewById<Button>(R.id.firstcolor)
         val secondBtn = findViewById<Button>(R.id.secondcolor)
+
+        // Обновление превью виджета
+        widgetDataUpdater.updateMainPreview(findViewById(R.id.widgetBack), file)
 
         if (!mSharedPrefs.contains("fontSize")) {
             editR.putInt("fontSize", 14)
@@ -126,13 +162,6 @@ class MainActivity : AppCompatActivity() {
 
             updateOnce()
         }
-
-
-        musicCheckBox.setOnClickListener{
-            editR.putBoolean("music", musicCheckBox.isChecked)
-            updateOnce()
-        }
-
 
         seekBarOffset.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
@@ -240,20 +269,51 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun updateAllOffsets(progress: Int){
-        for (childView in findViewById<ConstraintLayout>(R.id.widgetBack).children) {
-            val lp = childView.layoutParams as ConstraintLayout.LayoutParams
-            val density: Float = applicationContext.getResources().getDisplayMetrics().density
-            lp.setMargins(0, (progress * density).toInt(),0,0)
-            childView.layoutParams = lp
+        val mainView = findViewById<ConstraintLayout>(R.id.widgetBack)
+
+        for (childC: Int in 0..mainView.childCount-1) {
+            when(childC){
+                in 0..3 -> {
+                    val childView = mainView.getChildAt(childC)
+                    val lp = childView.layoutParams as ConstraintLayout.LayoutParams
+                    val density: Float = applicationContext.getResources().getDisplayMetrics().density
+                    lp.setMargins(0, 0,0,(progress * density).toInt())
+                    childView.layoutParams = lp
+                }
+                in 5..8 -> {
+                    val childView = mainView.getChildAt(childC)
+                    val lp = childView.layoutParams as ConstraintLayout.LayoutParams
+                    val density: Float = applicationContext.getResources().getDisplayMetrics().density
+                    lp.setMargins(0, (progress * density).toInt(),0,0)
+                    childView.layoutParams = lp
+                }
+            }
         }
     }
 
     private fun startUpdating() {
-        startService(Intent(this, UpdateWiget::class.java))
+        val alarmMan = applicationContext.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+
+        val intent = Intent(applicationContext, UpdateWidget::class.java)
+
+        val pendingIntent: PendingIntent
+
+        if(android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.S){
+            pendingIntent = PendingIntent.getBroadcast(applicationContext, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT)
+        }
+        else{
+            pendingIntent = PendingIntent.getBroadcast(applicationContext, 0, intent, PendingIntent.FLAG_MUTABLE)
+        }
+
+        val nextMinute = ((System.currentTimeMillis()/60000)+1)*60000
+
+        Log.d("[SYSTEM]", "NEXT MIN: " + nextMinute.toString() + " AND " + "SYSTEM: " + System.currentTimeMillis())
+
+        alarmMan.setRepeating(AlarmManager.RTC_WAKEUP ,nextMinute, 60000, pendingIntent)
+
     }
 
     private fun updateOnce() {
-        val widgetUpdater: WidgetDataUpdater = WidgetDataUpdater()
         widgetDataUpdater.update(appWidgetManager, thisWidget, remoteViews, file, applicationContext)
     }
 
@@ -323,13 +383,9 @@ class MainActivity : AppCompatActivity() {
             Log.d("[FS]", "$directory/temp.html created")
         }
         val ar = AsyncRequest()
+
         ar.takeMainThread(file, remoteViews, appWidgetManager, thisWidget, this, findViewById(R.id.root), context)
         ar.execute()
-
-        Log.d(
-            "[WIDGET INFO]",
-            "WIDGET ID = " + appWidgetManager.getAppWidgetIds(thisWidget)[0].toString()
-        )
         //TODO("ОБЯЗАТЕЛЬНО ПОФИКСИТЬ ЗДЕСЬ ОШИБКА, если нет виджета то приложение вылетит!")
 
     }
@@ -380,20 +436,8 @@ class MainActivity : AppCompatActivity() {
             file.writeText(doc.html())
 
             val widgetDataUpdater = WidgetDataUpdater()
-            rootView.findViewById<TextView>(R.id.col2).text = Jsoup.parse(file.readText())
-                .select("#dni-109" + widgetDataUpdater.getDate().toString() + "> b:nth-child(2)")
-                .text()
-            rootView.findViewById<TextView>(R.id.col3).text = Jsoup.parse(file.readText())
-                .select("#dni-109" + widgetDataUpdater.getDate().toString() + "> b:nth-child(8)")
-                .text()
-            rootView.findViewById<TextView>(R.id.col4).text = Jsoup.parse(file.readText())
-                .select("#dni-109" + widgetDataUpdater.getDate().toString() + "> b:nth-child(14)")
-                .text()
-            rootView.findViewById<TextView>(R.id.col5).text = Jsoup.parse(file.readText())
-                .select("#dni-109" + widgetDataUpdater.getDate().toString() + "> b:nth-child(20)")
-                .text()
-
             widgetDataUpdater.update(appWidgetManager, thisWidget, views, file, context)
+            widgetDataUpdater.updateMainPreview(rootView.findViewById(R.id.widgetBack), file)
             mainA.startUpdating() // Начинаем обновление
         }
     }

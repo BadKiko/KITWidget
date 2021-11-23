@@ -130,7 +130,7 @@
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/widgetB"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="71dp">
 
                 <Button
                     android:id="@+id/secondcolor"
@@ -179,6 +179,17 @@
                 android:layout_marginEnd="24dp"
                 android:background="@drawable/roundseparator" />
 
+            <TextView
+                android:id="@+id/checkboxSection"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:fontFamily="@font/evob"
+                android:text="Дополнительные настройки"
+                android:textAlignment="center"
+                android:textColor="@color/second_win_color"
+                android:textSize="22sp" />
+
             <CheckBox
                 android:id="@+id/musicCheckbox"
                 android:layout_width="match_parent"
@@ -186,11 +197,25 @@
                 android:layout_marginStart="24dp"
                 android:layout_marginTop="12dp"
                 android:layout_marginEnd="32dp"
-                android:fontFamily="@font/evob"
                 android:buttonTint="@color/button_color"
+                android:fontFamily="@font/evob"
                 android:text="Цвета виджета под цвет обложки музыки"
-                android:textColor="@color/second_win_color"
+                android:textColor="@color/third_text_color"
                 android:textSize="18sp" />
+
+            <CheckBox
+                android:id="@+id/fullShedule"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="24dp"
+                android:layout_marginTop="12dp"
+                android:layout_marginEnd="32dp"
+                android:buttonTint="@color/button_color"
+                android:fontFamily="@font/evob"
+                android:text="Добавить кнопку полного расписания"
+                android:textColor="@color/third_text_color"
+                android:textSize="18sp" />
+
 
         </LinearLayout>
     </ScrollView>
@@ -268,11 +293,13 @@
             android:id="@+id/col1"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
             android:layout_marginBottom="16dp"
             android:fontFamily="@font/evob"
+
             android:text="Строка 1"
             android:textAlignment="center"
-
             android:textColor="@color/second_color"
             android:textSize="14sp"
             app:layout_constraintBottom_toTopOf="@+id/wseparator1"
@@ -295,10 +322,12 @@
             android:id="@+id/col2"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
             android:layout_marginBottom="16dp"
+
             android:fontFamily="@font/evob"
             android:text="Строка 2"
-
             android:textAlignment="center"
             android:textColor="@color/second_color"
             android:textSize="14sp"
@@ -323,10 +352,12 @@
             android:id="@+id/col3"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
             android:fontFamily="@font/evob"
+
             android:text="Строка 3"
             android:textAlignment="center"
-
             android:textColor="@color/second_color"
             android:textSize="14sp"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -350,8 +381,10 @@
             android:id="@+id/col4"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
+            android:layout_marginStart="16dp"
 
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="16dp"
             android:fontFamily="@font/evob"
             android:text="Строка 4"
             android:textAlignment="center"
@@ -378,22 +411,27 @@
             android:id="@+id/col5"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
             android:layout_marginTop="16dp"
+            android:layout_marginEnd="16dp"
             android:fontFamily="@font/evob"
+
             android:text="Строка 5"
             android:textAlignment="center"
-
             android:textColor="@color/second_color"
             android:textSize="14sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/wseparator4" />
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+        <Button
+            android:id="@+id/button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Button"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="@+id/col5" />
 
-    <androidx.constraintlayout.widget.Group
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-       />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
