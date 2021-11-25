@@ -12,6 +12,9 @@ import android.content.pm.PackageManager
 import android.util.Log
 import android.view.View
 import android.app.PendingIntent
+import android.content.BroadcastReceiver
+import android.text.Html
+import android.widget.Toast
 
 class MainWidget : AppWidgetProvider() {
     lateinit var views: RemoteViews
@@ -47,8 +50,13 @@ class MainWidget : AppWidgetProvider() {
         mainHTMLFile = File("$directory/temp.html")
 
         val intent = Intent(context, MainActivity::class.java)
-
         val pendingIntent = PendingIntent.getActivity(context, 0, intent, 0)
+
+
+        val schIntent = Intent(context, ScheduleChanger::class.java)
+        val schPendingIntent = PendingIntent.getBroadcast(context, 0, schIntent, 0)
+
+        views.setOnClickPendingIntent(R.id.scheduleButton, schPendingIntent)
 
         if(mSharedPrefs.contains("color_background")){
             views.setInt(R.id.backOfMainW, "setColorFilter", mSharedPrefs.getInt("color_background", 0))
@@ -109,3 +117,4 @@ class MainWidget : AppWidgetProvider() {
         }
     }
 }
+

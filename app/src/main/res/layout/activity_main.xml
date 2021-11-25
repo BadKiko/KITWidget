@@ -425,12 +425,17 @@
             app:layout_constraintTop_toBottomOf="@+id/wseparator4" />
 
         <Button
-            android:id="@+id/button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Button"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="@+id/col5" />
+            android:id="@+id/schedullButonMainA"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_marginTop="18dp"
+            android:layout_marginRight="18dp"
+            android:background="@drawable/change_button"
+            android:backgroundTint="#80FFFFFF"
+            android:clickable="false"
+            android:visibility="invisible"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

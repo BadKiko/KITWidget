@@ -33,11 +33,11 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_above="@+id/separator1"
+        android:layout_marginLeft="16dp"
         android:layout_marginTop="1dp"
+        android:layout_marginRight="16dp"
         android:fontFamily="@font/evob"
         android:text="@string/column2"
-        android:layout_marginLeft="16dp"
-        android:layout_marginRight="16dp"
         android:textAlignment="center"
         android:textColor="@color/second_color"
         android:textSize="14sp" />
@@ -58,11 +58,11 @@
     <TextView
         android:id="@+id/textView3"
         android:layout_width="match_parent"
-        android:layout_marginLeft="16dp"
-        android:layout_marginRight="16dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="1dp"
         android:layout_below="@+id/separator2"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="1dp"
+        android:layout_marginRight="16dp"
         android:fontFamily="@font/evob"
         android:text="@string/column4"
         android:textAlignment="center"
@@ -75,11 +75,11 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/separator3"
         android:layout_marginLeft="16dp"
+        android:layout_marginTop="1dp"
         android:layout_marginRight="16dp"
         android:fontFamily="@font/evob"
         android:text="@string/column5"
         android:textAlignment="center"
-        android:layout_marginTop="1dp"
         android:textColor="@color/second_color"
         android:textSize="14sp" />
 
@@ -132,6 +132,30 @@
         android:layout_marginEnd="16dp"
         android:layout_weight="1"
         android:src="@drawable/wroundseparator" />
+
+    <ImageView
+        android:id="@+id/scheduleImage"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="18dp"
+        android:layout_marginEnd="18dp"
+        android:src="@drawable/change_button"
+        android:visibility="invisible" />
+
+    <Button
+        android:id="@+id/scheduleButton"
+        style="@style/Widget.AppCompat.Button.Borderless"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="18dp"
+        android:layout_marginEnd="18dp"
+        android:backgroundTint="#00FFFFFF"
+        android:fadingEdge="none"
+        android:visibility="visible" />
 
 
 </RelativeLayout>

@@ -18,13 +18,20 @@
         android:theme="@style/Theme.KITWidget"
         android:usesCleartextTraffic="true"
         tools:targetApi="n">
-        <service android:name=".MusicArt"
-            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE"
-            android:exported="true">
+        <receiver
+            android:name=".ScheduleChanger"
+            android:enabled="true"
+            android:exported="true"></receiver>
+
+        <service
+            android:name=".MusicArt"
+            android:exported="true"
+            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
             <intent-filter>
                 <action android:name="android.service.notification.NotificationListenerService" />
             </intent-filter>
         </service>
+
         <receiver
             android:name=".UpdateWidget"
             android:enabled="true"

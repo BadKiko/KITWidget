@@ -46,30 +46,6 @@ class MainActivity : AppCompatActivity() {
     val widgetDataUpdater = WidgetDataUpdater()
     var imw: ImageView? = null
 
-    override fun onResume() {
-        super.onResume()
-
-        val musicCheckBox = findViewById<CheckBox>(R.id.musicCheckbox)
-
-        val mSharedPrefs = applicationContext.getSharedPreferences("settings", Context.MODE_PRIVATE)
-        val editR = mSharedPrefs.edit()
-
-        musicCheckBox.isChecked = mSharedPrefs.getBoolean("music", false)
-        if(musicCheckBox.isChecked){
-            startService(Intent(this, MusicArt::class.java))
-        }
-        musicCheckBox.setOnCheckedChangeListener { buttonView, isChecked ->
-            editR.putBoolean("music", isChecked)
-            editR.apply()
-            if(isChecked){
-                startService(Intent(this, MusicArt::class.java))
-            }
-            else {
-                stopService(Intent(this, MusicArt::class.java))
-            }
-        }
-    }
-
     override fun onStart() {
         super.onStart()
 
@@ -128,6 +104,42 @@ class MainActivity : AppCompatActivity() {
 
         // Обновление превью виджета
         widgetDataUpdater.updateMainPreview(findViewById(R.id.widgetBack), file)
+
+        val musicCheckBox = findViewById<CheckBox>(R.id.musicCheckbox)
+        val scheduleChangerCheckBox = findViewById<CheckBox>(R.id.fullShedule)
+        val schedulleButton = findViewById<Button>(R.id.schedullButonMainA)
+
+        scheduleChangerCheckBox.isChecked = mSharedPrefs.getBoolean("fullSchedule", false)
+        if(scheduleChangerCheckBox.isChecked){
+            schedulleButton.visibility = View.VISIBLE
+        }
+        scheduleChangerCheckBox.setOnCheckedChangeListener { buttonView, isChecked ->
+            editR.putBoolean("fullSchedule", isChecked)
+            editR.apply()
+            if(isChecked) {
+                schedulleButton.visibility = View.VISIBLE
+            }
+            else
+            {
+                schedulleButton.visibility = View.INVISIBLE
+            }
+            updateOnce()
+        }
+
+        musicCheckBox.isChecked = mSharedPrefs.getBoolean("music", false)
+        if(musicCheckBox.isChecked){
+            startService(Intent(this, MusicArt::class.java))
+        }
+        musicCheckBox.setOnCheckedChangeListener { buttonView, isChecked ->
+            editR.putBoolean("music", isChecked)
+            editR.apply()
+            if(isChecked){
+                startService(Intent(this, MusicArt::class.java))
+            }
+            else {
+                stopService(Intent(this, MusicArt::class.java))
+            }
+        }
 
         if (!mSharedPrefs.contains("fontSize")) {
             editR.putInt("fontSize", 14)
