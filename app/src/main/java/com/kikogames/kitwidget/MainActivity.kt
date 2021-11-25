@@ -32,6 +32,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.Icon
+import androidx.annotation.ColorInt
 import androidx.core.graphics.drawable.toBitmap
 import androidx.core.graphics.drawable.toDrawable
 import java.lang.Exception
@@ -43,6 +44,8 @@ class MainActivity : AppCompatActivity() {
     lateinit var remoteViews: RemoteViews
     lateinit var thisWidget: ComponentName
     lateinit var file: File
+    lateinit var fileReplacement: File
+
     val widgetDataUpdater = WidgetDataUpdater()
     var imw: ImageView? = null
 
@@ -71,6 +74,12 @@ class MainActivity : AppCompatActivity() {
         thisWidget = ComponentName(this, MainWidget::class.java)
         remoteViews = RemoteViews(packageName, R.layout.main_widget)
 
+
+        if(android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S){
+            find
+        }
+
+
         getDirectory() // Получаем main директорию
 
         if (File("$directory/temp.html").exists()) {
@@ -80,6 +89,16 @@ class MainActivity : AppCompatActivity() {
             file = File("$directory/temp.html")
             Log.d("[FS]", "Can't delete file, file isn't exists")
         }
+        if (File("$directory/replacementTemp.html").exists()) {
+            fileReplacement = File("$directory/replacementTemp.html")
+        } else {
+            File("$directory/replacementTemp.html").createNewFile()
+            fileReplacement = File("$directory/replacementTemp.html")
+            Log.d("[FS]", "Can't delete file, file isn't exists")
+        }
+
+
+
         if(mSharedPrefs.contains("color_background")){
             findViewById<View>(R.id.widgetBack).backgroundTintList = ColorStateList.valueOf(mSharedPrefs.getInt("color_background", 0))
         }
@@ -103,7 +122,7 @@ class MainActivity : AppCompatActivity() {
         val secondBtn = findViewById<Button>(R.id.secondcolor)
 
         // Обновление превью виджета
-        widgetDataUpdater.updateMainPreview(findViewById(R.id.widgetBack), file)
+        widgetDataUpdater.updateMainPreview(findViewById(R.id.widgetBack), file, fileReplacement, applicationContext)
 
         val musicCheckBox = findViewById<CheckBox>(R.id.musicCheckbox)
         val scheduleChangerCheckBox = findViewById<CheckBox>(R.id.fullShedule)
@@ -233,8 +252,12 @@ class MainActivity : AppCompatActivity() {
         }
         updateButton.setOnClickListener {
             parseHTML(this)
-            widgetDataUpdater.update(appWidgetManager,
-                thisWidget, remoteViews, file, applicationContext)
+            if(File("$directory/replacementTemp.html").readText() != "" && File("$directory/temp.html").readText() != "") {
+                widgetDataUpdater.update(
+                    appWidgetManager,
+                    thisWidget, remoteViews, file, fileReplacement, applicationContext
+                )
+            }
         }
 
         //Цвета
@@ -326,7 +349,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun updateOnce() {
-        widgetDataUpdater.update(appWidgetManager, thisWidget, remoteViews, file, applicationContext)
+        widgetDataUpdater.update(appWidgetManager, thisWidget, remoteViews, file, fileReplacement, applicationContext)
     }
 
     fun colorizeWidgetText(color: Int){
@@ -386,25 +409,22 @@ class MainActivity : AppCompatActivity() {
 
     private fun parseHTML(context: Context) {
         val inputSite = File("$directory/temp.html")
-        if (inputSite.exists()) {
-            inputSite.delete()
-            Log.d("[FS]", "$directory/temp.html deleted")
-        }
-        if (!inputSite.exists()) {
-            inputSite.createNewFile()
-            Log.d("[FS]", "$directory/temp.html created")
-        }
+        val inputReplacements = File("$directory/replacementTemp.html")
+
         val ar = AsyncRequest()
 
-        ar.takeMainThread(file, remoteViews, appWidgetManager, thisWidget, this, findViewById(R.id.root), context)
+        ar.takeMainThread(file, remoteViews, appWidgetManager, thisWidget, this, findViewById(R.id.root), context, fileReplacement)
         ar.execute()
         //TODO("ОБЯЗАТЕЛЬНО ПОФИКСИТЬ ЗДЕСЬ ОШИБКА, если нет виджета то приложение вылетит!")
-
     }
 
     internal class AsyncRequest : AsyncTask<Void?, Void?, Void?>() { // Создаем поток Networking
         private lateinit var doc: Document
+        private lateinit var docReplacement: Document
+
         private lateinit var file: File
+        private lateinit var fileReplacement: File
+
         private lateinit var views: RemoteViews
         lateinit var appWidgetManager: AppWidgetManager
         lateinit var thisWidget: ComponentName
@@ -418,9 +438,11 @@ class MainActivity : AppCompatActivity() {
             tw: ComponentName,
             ma: MainActivity,
             rootV: ConstraintLayout,
-            ct: Context
+            ct: Context,
+            fileRp: File
         ) {
             file = inputSite
+            fileReplacement = fileRp
             views = rv
             appWidgetManager = awm
             thisWidget = tw
@@ -435,6 +457,7 @@ class MainActivity : AppCompatActivity() {
                 doc =
                     Jsoup.connect("http://www.spbkit.edu.ru/index.php?option=com_timetable&Itemid=82")
                         .get()
+                docReplacement = Jsoup.connect("http://v1.fxnode.ru:30001/replacements/view.html").get()
             } catch (e: IOException) {
                 //Если не получилось считать
                 e.printStackTrace()
@@ -446,10 +469,11 @@ class MainActivity : AppCompatActivity() {
             super.onPostExecute(result)
 
             file.writeText(doc.html())
+            fileReplacement.writeText(docReplacement.html())
 
             val widgetDataUpdater = WidgetDataUpdater()
-            widgetDataUpdater.update(appWidgetManager, thisWidget, views, file, context)
-            widgetDataUpdater.updateMainPreview(rootView.findViewById(R.id.widgetBack), file)
+            widgetDataUpdater.update(appWidgetManager, thisWidget, views, file, fileReplacement, context)
+            widgetDataUpdater.updateMainPreview(rootView.findViewById(R.id.widgetBack), file,fileReplacement, context)
             mainA.startUpdating() // Начинаем обновление
         }
     }

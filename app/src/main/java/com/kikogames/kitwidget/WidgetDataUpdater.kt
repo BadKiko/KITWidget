@@ -15,6 +15,7 @@ import android.content.Intent
 import android.content.BroadcastReceiver
 import android.media.AudioManager
 import android.widget.TextView
+import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.children
 
@@ -36,14 +37,14 @@ class WidgetDataUpdater{
     }
 
 
-    fun update(appWidgetManager: AppWidgetManager, thisWidget: ComponentName, views: RemoteViews, file: File, context: Context) {
+    fun update(appWidgetManager: AppWidgetManager, thisWidget: ComponentName, views: RemoteViews, file: File, fileReplacements: File, context: Context) {
         val mSharedPrefs = context.getSharedPreferences("settings", Context.MODE_PRIVATE)
         val density: Float = context.getResources().getDisplayMetrics().density
 
         visibleTextsView(views)
 
         if(!mSharedPrefs.getBoolean("schFull", false)) {
-            chooseNeedData(views, file, getSecondsDay())
+            chooseNeedData(views, file, fileReplacements, getSecondsDay(), context)
         }
         else
         {
@@ -72,14 +73,19 @@ class WidgetDataUpdater{
         }
     }
 
-    fun update(appWidgetManager: AppWidgetManager, thisWidget: ComponentName, views: RemoteViews, file: File, context: Context, colorD: Int, colorM: Int)
+    fun getReplacements(context: Context, fileReplacements: File) : Int{
+        Toast.makeText(context, fileReplacements.readText(), Toast.LENGTH_SHORT).show()
+        return 0
+    }
+
+    fun update(appWidgetManager: AppWidgetManager, thisWidget: ComponentName, views: RemoteViews, file: File, fileReplacements: File, context: Context, colorD: Int, colorM: Int)
     {
         val mSharedPrefs = context.getSharedPreferences("settings", Context.MODE_PRIVATE)
         val density: Float = context.getResources().getDisplayMetrics().density
 
         visibleTextsView(views)
 
-        chooseNeedData(views, file, getSecondsDay())
+        chooseNeedData(views, file, fileReplacements, getSecondsDay(), context)
 
         changeSizeTextViews(mSharedPrefs, views)
         changePaddingTextViews(mSharedPrefs, views, density)
@@ -91,8 +97,8 @@ class WidgetDataUpdater{
         }
     }
 
-    fun updateMainPreview(views: ConstraintLayout, file: File) {
-        chooseNeedData(views, file, getSecondsDay())
+    fun updateMainPreview(views: ConstraintLayout, file: File, fileReplacements: File, context: Context) {
+        chooseNeedData(views, file, fileReplacements, getSecondsDay(), context)
     }
 
     fun parseAllToTextViews(views: RemoteViews, file: File, day: Int){
@@ -157,7 +163,7 @@ class WidgetDataUpdater{
             }
         }
     }
-    private fun chooseNeedData(mainActView: ConstraintLayout, file: File, seconds: Int){
+    private fun chooseNeedData(mainActView: ConstraintLayout, file: File, fileReplacements: File, seconds: Int, context: Context){
         if(getDate()==-1){
             parseAllToTextViews(mainActView, file, 1)
         }
@@ -411,7 +417,7 @@ class WidgetDataUpdater{
         return 0
     }
 
-    private fun chooseNeedData(views: RemoteViews, file: File, seconds: Int){
+    private fun chooseNeedData(views: RemoteViews, file: File, fileReplacements: File, seconds: Int, context: Context){
         val firstPair = Jsoup.parse(file.readText()).select("#dni-109" + (getDate()).toString() + "> b:nth-child(2)").text()
         val secondPair = Jsoup.parse(file.readText()).select("#dni-109" + (getDate()).toString() + "> b:nth-child(8)").text()
         val thirdPair = Jsoup.parse(file.readText()).select("#dni-109" + (getDate()).toString() + "> b:nth-child(14)").text()
@@ -419,6 +425,8 @@ class WidgetDataUpdater{
         val foodTime = arrayOf("10:50","ДО","12:20", "11:50", "12:50", "12:20")
 
         val pairs = arrayOf(firstPair, secondPair, thirdPair, fourtPair)
+
+        getReplacements(context, fileReplacements)
 
         val realFirst = getRealPair(pairs)
         val realEnd= 3-getRealPair(pairs.reversedArray())

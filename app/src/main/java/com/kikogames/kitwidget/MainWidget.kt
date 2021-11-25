@@ -20,6 +20,8 @@ class MainWidget : AppWidgetProvider() {
     lateinit var views: RemoteViews
     lateinit var directory: String
     lateinit var mainHTMLFile: File
+    lateinit var replacementHTMLFile: File
+
     override fun onUpdate(
         context: Context,
         appWidgetManager: AppWidgetManager,
@@ -48,6 +50,7 @@ class MainWidget : AppWidgetProvider() {
         takeDirectory(context) //Берем основную директорию
 
         mainHTMLFile = File("$directory/temp.html")
+        replacementHTMLFile = File("${takeDirectory(context)}/replacementTemp.html")
 
         val intent = Intent(context, MainActivity::class.java)
         val pendingIntent = PendingIntent.getActivity(context, 0, intent, 0)
@@ -74,7 +77,7 @@ class MainWidget : AppWidgetProvider() {
         }
 
         checkOnFirstLaunch(appWidgetManager, ComponentName(context, this::class.java),
-            mainHTMLFile, context
+            mainHTMLFile, replacementHTMLFile, context
         ) // Проверка на первый запуск
 
         Log.d("WIDGET INFO *M*", appWidgetId.toString())
@@ -101,6 +104,7 @@ class MainWidget : AppWidgetProvider() {
         appWidgetManager: AppWidgetManager,
         componentName: ComponentName,
         file: File,
+        fileReplacement: File,
         context: Context,
     ){
         if(!mainHTMLFile.exists()){ //Если файл еще не существует
@@ -113,7 +117,7 @@ class MainWidget : AppWidgetProvider() {
         }
         else{
             val widgetDataUpdater = WidgetDataUpdater()
-                widgetDataUpdater.update(appWidgetManager, componentName, views,file, context)
+                widgetDataUpdater.update(appWidgetManager, componentName, views,file, fileReplacement, context)
         }
     }
 }
