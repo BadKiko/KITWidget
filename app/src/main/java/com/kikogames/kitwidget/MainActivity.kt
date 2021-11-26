@@ -24,18 +24,13 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import android.content.res.ColorStateList
 import android.graphics.Color
 import androidx.core.view.children
+import com.kongzue.dialog.util.DialogSettings
+import com.kongzue.dialog.v3.TipDialog
+import com.kongzue.dialog.v3.WaitDialog
 import me.jfenn.colorpickerdialog.dialogs.ColorPickerDialog
 import me.jfenn.colorpickerdialog.views.picker.ImagePickerView
-import java.util.*
-import android.content.IntentFilter
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.graphics.drawable.Drawable
-import android.graphics.drawable.Icon
-import androidx.annotation.ColorInt
-import androidx.core.graphics.drawable.toBitmap
-import androidx.core.graphics.drawable.toDrawable
-import java.lang.Exception
+import org.jsoup.nodes.Element
+import java.lang.reflect.Type
 
 class MainActivity : AppCompatActivity() {
     lateinit var directory: String
@@ -70,14 +65,12 @@ class MainActivity : AppCompatActivity() {
         val mSharedPrefs = applicationContext.getSharedPreferences("settings", Context.MODE_PRIVATE)
         val editR = mSharedPrefs.edit()
 
+
+        DialogSettings.isUseBlur=true
+
         appWidgetManager = AppWidgetManager.getInstance(this)
         thisWidget = ComponentName(this, MainWidget::class.java)
         remoteViews = RemoteViews(packageName, R.layout.main_widget)
-
-
-        if(android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S){
-            find
-        }
 
 
         getDirectory() // Получаем main директорию
@@ -252,6 +245,7 @@ class MainActivity : AppCompatActivity() {
         }
         updateButton.setOnClickListener {
             parseHTML(this)
+
             if(File("$directory/replacementTemp.html").readText() != "" && File("$directory/temp.html").readText() != "") {
                 widgetDataUpdater.update(
                     appWidgetManager,
@@ -301,6 +295,13 @@ class MainActivity : AppCompatActivity() {
                 childView.textSize = progress.toFloat()
             }
         }
+    }
+
+    fun showWaitDialogByMain(text: String, td: TipDialog.TYPE){
+        WaitDialog.show(this, text, td)
+    }
+    fun showWaitDialogByMain(text: String, td: TipDialog.TYPE, time: Int){
+        WaitDialog.show(this, text, td).setTipTime(time)
     }
 
     private fun updateAllOffsets(progress: Int){
@@ -408,13 +409,15 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun parseHTML(context: Context) {
+
         val inputSite = File("$directory/temp.html")
         val inputReplacements = File("$directory/replacementTemp.html")
 
         val ar = AsyncRequest()
-
         ar.takeMainThread(file, remoteViews, appWidgetManager, thisWidget, this, findViewById(R.id.root), context, fileReplacement)
         ar.execute()
+        WaitDialog.show(this, "Получение расписания...")
+
         //TODO("ОБЯЗАТЕЛЬНО ПОФИКСИТЬ ЗДЕСЬ ОШИБКА, если нет виджета то приложение вылетит!")
     }
 
@@ -431,6 +434,10 @@ class MainActivity : AppCompatActivity() {
         var mainA: MainActivity = MainActivity()
         lateinit var rootView: View
         lateinit  var context: Context
+
+        lateinit var apca: AppCompatActivity
+
+
         fun takeMainThread(
             inputSite: File,
             rv: RemoteViews,
@@ -439,7 +446,7 @@ class MainActivity : AppCompatActivity() {
             ma: MainActivity,
             rootV: ConstraintLayout,
             ct: Context,
-            fileRp: File
+            fileRp: File,
         ) {
             file = inputSite
             fileReplacement = fileRp
@@ -458,23 +465,31 @@ class MainActivity : AppCompatActivity() {
                     Jsoup.connect("http://www.spbkit.edu.ru/index.php?option=com_timetable&Itemid=82")
                         .get()
                 docReplacement = Jsoup.connect("http://v1.fxnode.ru:30001/replacements/view.html").get()
+                val script = docReplacement.select("script").first(); // Get the script part
+                file.writeText(doc.html())
+                fileReplacement.writeText(docReplacement.html())
+                val widgetDataUpdater = WidgetDataUpdater()
+                widgetDataUpdater.update(appWidgetManager, thisWidget, views, file, fileReplacement, context)
+                widgetDataUpdater.updateMainPreview(rootView.findViewById(R.id.widgetBack), file,fileReplacement, context)
             } catch (e: IOException) {
                 //Если не получилось считать
-                e.printStackTrace()
+                    if(e.message?.contains("Unable to resolve host") == true) { // Нет интернета или не удалось добраться до сайта
+                        mainA.showWaitDialogByMain("Ошибка! Для обновления необходимо интернет соединение!", TipDialog.TYPE.ERROR)
+                    }
             }
+
+
+
+
             return null
         }
 
         override fun onPostExecute(result: Void?) {
             super.onPostExecute(result)
-
-            file.writeText(doc.html())
-            fileReplacement.writeText(docReplacement.html())
-
-            val widgetDataUpdater = WidgetDataUpdater()
-            widgetDataUpdater.update(appWidgetManager, thisWidget, views, file, fileReplacement, context)
-            widgetDataUpdater.updateMainPreview(rootView.findViewById(R.id.widgetBack), file,fileReplacement, context)
-            mainA.startUpdating() // Начинаем обновление
+            if(this::doc.isInitialized){
+                mainA.showWaitDialogByMain("Успешно загружено!", TipDialog.TYPE.SUCCESS)
+                mainA.startUpdating() // Начинаем обновление
+            }
         }
     }
 }

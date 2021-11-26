@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Gradle: me.jfenn.ColorPickerDialog:base:0.2.2@aar">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/transforms-3/a3d5928e7efca86fd73e1a64aec1a806/transformed/jetified-base-0.2.2/jars/classes.jar!/" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-3/a3d5928e7efca86fd73e1a64aec1a806/transformed/jetified-base-0.2.2/res" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-3/a3d5928e7efca86fd73e1a64aec1a806/transformed/jetified-base-0.2.2/AndroidManifest.xml" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/me.jfenn.ColorPickerDialog/base/0.2.2/a85193ba1f82226a941e53f74e2539e1270e4ce9/base-0.2.2-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

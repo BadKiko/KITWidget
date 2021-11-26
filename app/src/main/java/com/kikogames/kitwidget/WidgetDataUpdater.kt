@@ -74,7 +74,7 @@ class WidgetDataUpdater{
     }
 
     fun getReplacements(context: Context, fileReplacements: File) : Int{
-        Toast.makeText(context, fileReplacements.readText(), Toast.LENGTH_SHORT).show()
+       // Toast.makeText(context, fileReplacements.readText(), Toast.LENGTH_SHORT).show()
         return 0
     }
 
@@ -400,9 +400,9 @@ class WidgetDataUpdater{
     fun getTimeOfStart(nowUrk: Int) : Int{
         when(nowUrk){
             0 -> return 32400
-            1 -> return 42900
-            2 -> return 50400
-            3 -> return 56700
+            1 -> return 39900
+            2 -> return 47400
+            3 -> return 53700
         }
         return 0
     }
