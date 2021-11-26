@@ -12,23 +12,16 @@ import android.content.pm.PackageManager
 import android.util.Log
 import android.view.View
 import android.app.PendingIntent
-import android.content.res.ColorStateList
-import android.graphics.*
-import android.os.Build
-import android.widget.LinearLayout
-import android.widget.RelativeLayout
-import android.widget.TextView
-import androidx.annotation.RequiresApi
-import androidx.core.view.children
+import android.content.BroadcastReceiver
+import android.text.Html
+import android.widget.Toast
 
-
-/**
- * Implementation of App Widget functionality.
- */
 class MainWidget : AppWidgetProvider() {
     lateinit var views: RemoteViews
     lateinit var directory: String
     lateinit var mainHTMLFile: File
+    lateinit var replacementHTMLFile: File
+
     override fun onUpdate(
         context: Context,
         appWidgetManager: AppWidgetManager,
@@ -46,17 +39,30 @@ class MainWidget : AppWidgetProvider() {
         appWidgetId: Int
     )
     {
-
         // Construct the RemoteViews object
         views = RemoteViews(context.packageName, R.layout.main_widget)
+        val mSharedPrefs = context.getSharedPreferences("settings", Context.MODE_PRIVATE)
+
+        if(mSharedPrefs.getBoolean("music", false)){
+            context.startService(Intent(context, MusicArt::class.java))
+        }
 
         takeDirectory(context) //Берем основную директорию
 
         mainHTMLFile = File("$directory/temp.html")
+        replacementHTMLFile = File("${takeDirectory(context)}/replacementTemp.html")
 
-        val mSharedPrefs = context.getSharedPreferences("settings", Context.MODE_PRIVATE)
+        val intent = Intent(context, MainActivity::class.java)
+        val pendingIntent = PendingIntent.getActivity(context, 0, intent, 0)
+
+
+        val schIntent = Intent(context, ScheduleChanger::class.java)
+        val schPendingIntent = PendingIntent.getBroadcast(context, 0, schIntent, 0)
+
+        views.setOnClickPendingIntent(R.id.scheduleButton, schPendingIntent)
+
         if(mSharedPrefs.contains("color_background")){
-            views.setInt(R.id.imageView4, "setColorFilter", mSharedPrefs.getInt("color_background", 0))
+            views.setInt(R.id.backOfMainW, "setColorFilter", mSharedPrefs.getInt("color_background", 0))
             views.setInt(R.id.separator0, "setColorFilter", mSharedPrefs.getInt("color_background", 0))
             views.setInt(R.id.separator1, "setColorFilter", mSharedPrefs.getInt("color_background", 0))
             views.setInt(R.id.separator2, "setColorFilter", mSharedPrefs.getInt("color_background", 0))
@@ -71,21 +77,17 @@ class MainWidget : AppWidgetProvider() {
         }
 
         checkOnFirstLaunch(appWidgetManager, ComponentName(context, this::class.java),
-            mainHTMLFile, context
+            mainHTMLFile, replacementHTMLFile, context
         ) // Проверка на первый запуск
 
         Log.d("WIDGET INFO *M*", appWidgetId.toString())
         Log.d("WIDGET INFO *M*", views.toString())
-
-        val intent = Intent(context, MainActivity::class.java)
-        val pendingIntent = PendingIntent.getActivity(context, 0, intent, 0)
 
         views.setOnClickPendingIntent(R.id.mainwidget, pendingIntent);
 
         // Instruct the widget manager to update the widget
         appWidgetManager.updateAppWidget(appWidgetId, views)
     }
-
 
     fun takeDirectory(context: Context){
         val pManager: PackageManager = context.packageManager
@@ -102,6 +104,7 @@ class MainWidget : AppWidgetProvider() {
         appWidgetManager: AppWidgetManager,
         componentName: ComponentName,
         file: File,
+        fileReplacement: File,
         context: Context,
     ){
         if(!mainHTMLFile.exists()){ //Если файл еще не существует
@@ -114,7 +117,8 @@ class MainWidget : AppWidgetProvider() {
         }
         else{
             val widgetDataUpdater = WidgetDataUpdater()
-                widgetDataUpdater.update(appWidgetManager, componentName, views,file, context)
+                widgetDataUpdater.update(appWidgetManager, componentName, views,file, fileReplacement, context)
         }
     }
 }
+

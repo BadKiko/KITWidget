@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.kikogames.kitwidget">
 
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
     <application
         android:allowBackup="true"
@@ -14,12 +16,26 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.KITWidget"
-        android:usesCleartextTraffic="true">
-        <service
-            android:name=".UpdateWiget"
+        android:usesCleartextTraffic="true"
+        tools:targetApi="n">
+        <receiver
+            android:name=".ScheduleChanger"
             android:enabled="true"
-            android:exported="true"></service>
+            android:exported="true"></receiver>
 
+        <service
+            android:name=".MusicArt"
+            android:exported="true"
+            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
+            <intent-filter>
+                <action android:name="android.service.notification.NotificationListenerService" />
+            </intent-filter>
+        </service>
+
+        <receiver
+            android:name=".UpdateWidget"
+            android:enabled="true"
+            android:exported="true" />
         <receiver
             android:name=".MainWidget"
             android:exported="true">

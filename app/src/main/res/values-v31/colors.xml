@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="main_color">@android:color/system_accent1_700</color>
+    <color name="main_win_color">@android:color/system_accent1_500</color>
+    <color name="back_win_color">@android:color/system_accent1_400</color>
+    <color name="second_win_color">@android:color/system_accent1_200</color>
+    <color name="third_text_color">@android:color/system_accent1_400</color>
+    <color name="button_color">@android:color/system_accent1_200</color>
+    <color name="separator_color">@android:color/system_accent1_700</color>
+    <color name="seekbar_color">@android:color/system_accent1_700</color>
+</resources>

@@ -1,5 +1,7 @@
 package com.kikogames.kitwidget
 
+import android.app.AlarmManager
+import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
 import android.content.ComponentName
 import android.content.Context
@@ -20,15 +22,15 @@ import android.widget.SeekBar
 import android.widget.SeekBar.OnSeekBarChangeListener
 import androidx.constraintlayout.widget.ConstraintLayout
 import android.content.res.ColorStateList
-import android.view.ViewGroup
-import android.view.ViewGroup.MarginLayoutParams
-import androidx.core.view.updateLayoutParams
-import com.skydoves.colorpickerview.ColorEnvelope
-import com.skydoves.colorpickerview.listeners.ColorEnvelopeListener
-import com.skydoves.colorpickerview.ColorPickerDialog
-import com.skydoves.colorpickerview.kotlin.colorPickerDialog
-import org.w3c.dom.Text
-
+import android.graphics.Color
+import androidx.core.view.children
+import com.kongzue.dialog.util.DialogSettings
+import com.kongzue.dialog.v3.TipDialog
+import com.kongzue.dialog.v3.WaitDialog
+import me.jfenn.colorpickerdialog.dialogs.ColorPickerDialog
+import me.jfenn.colorpickerdialog.views.picker.ImagePickerView
+import org.jsoup.nodes.Element
+import java.lang.reflect.Type
 
 class MainActivity : AppCompatActivity() {
     lateinit var directory: String
@@ -37,14 +39,23 @@ class MainActivity : AppCompatActivity() {
     lateinit var remoteViews: RemoteViews
     lateinit var thisWidget: ComponentName
     lateinit var file: File
+    lateinit var fileReplacement: File
+
     val widgetDataUpdater = WidgetDataUpdater()
+    var imw: ImageView? = null
 
     override fun onStart() {
         super.onStart()
 
         val widgetSizeProvider = WidgetSizeProvider(this)
-        findViewById<View>(R.id.widgetBack).layoutParams.width = widgetSizeProvider.getWidgetsSize(appWidgetManager.getAppWidgetIds(thisWidget)[0]).first-25 // Получаем размер виджета
-        findViewById<View>(R.id.widgetBack).layoutParams.height = widgetSizeProvider.getWidgetsSize(appWidgetManager.getAppWidgetIds(thisWidget)[0]).second-130 // Получаем размер виджета
+        val density: Float = applicationContext.getResources().getDisplayMetrics().density
+
+        if(appWidgetManager.getAppWidgetIds(thisWidget).isNotEmpty()) {
+            findViewById<View>(R.id.widgetBack).layoutParams.width =
+                widgetSizeProvider.getWidgetsSize(appWidgetManager.getAppWidgetIds(thisWidget)[0]).first // Получаем размер виджета
+            findViewById<View>(R.id.widgetBack).layoutParams.height =
+                widgetSizeProvider.getWidgetsSize(appWidgetManager.getAppWidgetIds(thisWidget)[0]).second // Получаем размер виджета
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -54,19 +65,32 @@ class MainActivity : AppCompatActivity() {
         val mSharedPrefs = applicationContext.getSharedPreferences("settings", Context.MODE_PRIVATE)
         val editR = mSharedPrefs.edit()
 
+
+        DialogSettings.isUseBlur=true
+
         appWidgetManager = AppWidgetManager.getInstance(this)
         thisWidget = ComponentName(this, MainWidget::class.java)
         remoteViews = RemoteViews(packageName, R.layout.main_widget)
 
+
         getDirectory() // Получаем main директорию
 
         if (File("$directory/temp.html").exists()) {
-             file = File("$directory/temp.html")
+            file = File("$directory/temp.html")
         } else {
             File("$directory/temp.html").createNewFile()
-             file = File("$directory/temp.html")
+            file = File("$directory/temp.html")
             Log.d("[FS]", "Can't delete file, file isn't exists")
         }
+        if (File("$directory/replacementTemp.html").exists()) {
+            fileReplacement = File("$directory/replacementTemp.html")
+        } else {
+            File("$directory/replacementTemp.html").createNewFile()
+            fileReplacement = File("$directory/replacementTemp.html")
+            Log.d("[FS]", "Can't delete file, file isn't exists")
+        }
+
+
 
         if(mSharedPrefs.contains("color_background")){
             findViewById<View>(R.id.widgetBack).backgroundTintList = ColorStateList.valueOf(mSharedPrefs.getInt("color_background", 0))
@@ -81,7 +105,6 @@ class MainActivity : AppCompatActivity() {
         val seekBarFontSize = findViewById<SeekBar>(R.id.shrift)
         val seekBarOffset = findViewById<SeekBar>(R.id.offset)
         val offsetSizeTextView = findViewById<TextView>(R.id.offsetSizeTV)
-        val musicCheckBox = findViewById<CheckBox>(R.id.musicCheckbox)
 
         val updateButton = findViewById<Button>(R.id.update)
         val deleteButton = findViewById<Button>(R.id.deleteAll)
@@ -91,11 +114,43 @@ class MainActivity : AppCompatActivity() {
         val firstBtn = findViewById<Button>(R.id.firstcolor)
         val secondBtn = findViewById<Button>(R.id.secondcolor)
 
-        if(appWidgetManager.getAppWidgetIds(thisWidget).size != 0) {
-            findViewById<View>(R.id.widgetBack).layoutParams.width =
-                widgetSizeProvider.getWidgetsSize(appWidgetManager.getAppWidgetIds(thisWidget)[0]).first - 25 // Получаем размер виджета
-            findViewById<View>(R.id.widgetBack).layoutParams.height =
-                widgetSizeProvider.getWidgetsSize(appWidgetManager.getAppWidgetIds(thisWidget)[0]).second - 25 // Получаем размер виджета
+        // Обновление превью виджета
+        widgetDataUpdater.updateMainPreview(findViewById(R.id.widgetBack), file, fileReplacement, applicationContext)
+
+        val musicCheckBox = findViewById<CheckBox>(R.id.musicCheckbox)
+        val scheduleChangerCheckBox = findViewById<CheckBox>(R.id.fullShedule)
+        val schedulleButton = findViewById<Button>(R.id.schedullButonMainA)
+
+        scheduleChangerCheckBox.isChecked = mSharedPrefs.getBoolean("fullSchedule", false)
+        if(scheduleChangerCheckBox.isChecked){
+            schedulleButton.visibility = View.VISIBLE
+        }
+        scheduleChangerCheckBox.setOnCheckedChangeListener { buttonView, isChecked ->
+            editR.putBoolean("fullSchedule", isChecked)
+            editR.apply()
+            if(isChecked) {
+                schedulleButton.visibility = View.VISIBLE
+            }
+            else
+            {
+                schedulleButton.visibility = View.INVISIBLE
+            }
+            updateOnce()
+        }
+
+        musicCheckBox.isChecked = mSharedPrefs.getBoolean("music", false)
+        if(musicCheckBox.isChecked){
+            startService(Intent(this, MusicArt::class.java))
+        }
+        musicCheckBox.setOnCheckedChangeListener { buttonView, isChecked ->
+            editR.putBoolean("music", isChecked)
+            editR.apply()
+            if(isChecked){
+                startService(Intent(this, MusicArt::class.java))
+            }
+            else {
+                stopService(Intent(this, MusicArt::class.java))
+            }
         }
 
         if (!mSharedPrefs.contains("fontSize")) {
@@ -108,19 +163,29 @@ class MainActivity : AppCompatActivity() {
         } else {
             seekBarFontSize.progress = mSharedPrefs.getInt("fontSize", 14)
             fontSizeTextView.text =
-                "Размер шрифта виджета - " + seekBarFontSize.progress.toString() + "px"
+                "Размер шрифта виджета - " + seekBarFontSize.progress.toString() + "dp"
 
             updateAllTextSizes(seekBarFontSize.progress)
 
             updateOnce()
         }
 
+        if (!mSharedPrefs.contains("offset")) {
+            editR.putInt("offset", 16)
+            editR.apply()
+            Log.d(
+                "[SP]",
+                "Put offset 16 | Contain offset - " + mSharedPrefs.contains("offset")
+            )
+        } else {
+            seekBarOffset.progress = mSharedPrefs.getInt("offset", 14)
+            offsetSizeTextView.text =
+                "Ширина промежутков - " + seekBarOffset.progress.toString() + "dp"
 
-        musicCheckBox.setOnClickListener{
-            editR.putBoolean("music", musicCheckBox.isChecked)
+            updateAllOffsets(seekBarOffset.progress)
+
             updateOnce()
         }
-
 
         seekBarOffset.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
@@ -180,8 +245,13 @@ class MainActivity : AppCompatActivity() {
         }
         updateButton.setOnClickListener {
             parseHTML(this)
-            widgetDataUpdater.update(appWidgetManager,
-                thisWidget, remoteViews, file, applicationContext)
+
+            if(File("$directory/replacementTemp.html").readText() != "" && File("$directory/temp.html").readText() != "") {
+                widgetDataUpdater.update(
+                    appWidgetManager,
+                    thisWidget, remoteViews, file, fileReplacement, applicationContext
+                )
+            }
         }
 
         //Цвета
@@ -215,6 +285,8 @@ class MainActivity : AppCompatActivity() {
                 }
                 .show(supportFragmentManager, "colorPicker")
         }
+
+        startUpdating()
     }
 
     private fun updateAllTextSizes(progress: Int){
@@ -225,22 +297,60 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    fun showWaitDialogByMain(text: String, td: TipDialog.TYPE){
+        WaitDialog.show(this, text, td)
+    }
+    fun showWaitDialogByMain(text: String, td: TipDialog.TYPE, time: Int){
+        WaitDialog.show(this, text, td).setTipTime(time)
+    }
+
     private fun updateAllOffsets(progress: Int){
-        for (childView in findViewById<ConstraintLayout>(R.id.widgetBack).children) {
-            val lp = childView.layoutParams as ConstraintLayout.LayoutParams
-            val density: Float = applicationContext.getResources().getDisplayMetrics().density
-            lp.setMargins(0, (progress * density).toInt(),0,0)
-            childView.layoutParams = lp
+        val mainView = findViewById<ConstraintLayout>(R.id.widgetBack)
+
+        for (childC: Int in 0..mainView.childCount-1) {
+            when(childC){
+                in 0..3 -> {
+                    val childView = mainView.getChildAt(childC)
+                    val lp = childView.layoutParams as ConstraintLayout.LayoutParams
+                    val density: Float = applicationContext.getResources().getDisplayMetrics().density
+                    lp.setMargins(0, 0,0,(progress * density).toInt())
+                    childView.layoutParams = lp
+                }
+                in 5..8 -> {
+                    val childView = mainView.getChildAt(childC)
+                    val lp = childView.layoutParams as ConstraintLayout.LayoutParams
+                    val density: Float = applicationContext.getResources().getDisplayMetrics().density
+                    lp.setMargins(0, (progress * density).toInt(),0,0)
+                    childView.layoutParams = lp
+                }
+            }
         }
     }
 
     private fun startUpdating() {
-        startService(Intent(this, UpdateWiget::class.java))
+        val alarmMan = applicationContext.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+
+        val intent = Intent(applicationContext, UpdateWidget::class.java)
+
+        val pendingIntent: PendingIntent
+
+        if(android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.S){
+            pendingIntent = PendingIntent.getBroadcast(applicationContext, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT)
+        }
+        else{
+            pendingIntent = PendingIntent.getBroadcast(applicationContext, 0, intent, PendingIntent.FLAG_MUTABLE)
+        }
+
+        val nextMinute = ((System.currentTimeMillis()/60000)+1)*60000
+
+        Log.d("[SYSTEM]", "NEXT MIN: " + nextMinute.toString() + " AND " + "SYSTEM: " + System.currentTimeMillis())
+
+        alarmMan.setRepeating(AlarmManager.RTC_WAKEUP ,nextMinute, 60000, pendingIntent)
+
     }
 
     private fun updateOnce() {
-        val widgetUpdater: WidgetDataUpdater = WidgetDataUpdater()
-        widgetDataUpdater.update(appWidgetManager, thisWidget, remoteViews, file, applicationContext)
+        widgetDataUpdater.update(appWidgetManager, thisWidget, remoteViews, file, fileReplacement, applicationContext)
     }
 
     fun colorizeWidgetText(color: Int){
@@ -279,7 +389,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun updateColumnsInReview(){
-        findViewById<TextView>(R.id.col1).text = "Расписание на завтра"
+        findViewById<TextView>(R.id.col1).text = "Расписание на сегодня"
 
         findViewById<TextView>(R.id.col2).text = Jsoup.parse(file.readText())
             .select("#dni-109" + widgetDataUpdater.getDate().toString() + "> b:nth-child(2)")
@@ -299,36 +409,35 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun parseHTML(context: Context) {
+
         val inputSite = File("$directory/temp.html")
-        if (inputSite.exists()) {
-            inputSite.delete()
-            Log.d("[FS]", "$directory/temp.html deleted")
-        }
-        if (!inputSite.exists()) {
-            inputSite.createNewFile()
-            Log.d("[FS]", "$directory/temp.html created")
-        }
+        val inputReplacements = File("$directory/replacementTemp.html")
+
         val ar = AsyncRequest()
-        ar.takeMainThread(file, remoteViews, appWidgetManager, thisWidget, this, findViewById(R.id.root), context)
+        ar.takeMainThread(file, remoteViews, appWidgetManager, thisWidget, this, findViewById(R.id.root), context, fileReplacement)
         ar.execute()
+        WaitDialog.show(this, "Получение расписания...")
 
-        Log.d(
-            "[WIDGET INFO]",
-            "WIDGET ID = " + appWidgetManager.getAppWidgetIds(thisWidget)[0].toString()
-        )
         //TODO("ОБЯЗАТЕЛЬНО ПОФИКСИТЬ ЗДЕСЬ ОШИБКА, если нет виджета то приложение вылетит!")
-
     }
 
     internal class AsyncRequest : AsyncTask<Void?, Void?, Void?>() { // Создаем поток Networking
         private lateinit var doc: Document
+        private lateinit var docReplacement: Document
+
         private lateinit var file: File
+        private lateinit var fileReplacement: File
+
         private lateinit var views: RemoteViews
         lateinit var appWidgetManager: AppWidgetManager
         lateinit var thisWidget: ComponentName
         var mainA: MainActivity = MainActivity()
         lateinit var rootView: View
         lateinit  var context: Context
+
+        lateinit var apca: AppCompatActivity
+
+
         fun takeMainThread(
             inputSite: File,
             rv: RemoteViews,
@@ -336,9 +445,11 @@ class MainActivity : AppCompatActivity() {
             tw: ComponentName,
             ma: MainActivity,
             rootV: ConstraintLayout,
-            ct: Context
+            ct: Context,
+            fileRp: File,
         ) {
             file = inputSite
+            fileReplacement = fileRp
             views = rv
             appWidgetManager = awm
             thisWidget = tw
@@ -353,34 +464,32 @@ class MainActivity : AppCompatActivity() {
                 doc =
                     Jsoup.connect("http://www.spbkit.edu.ru/index.php?option=com_timetable&Itemid=82")
                         .get()
+                docReplacement = Jsoup.connect("http://v1.fxnode.ru:30001/replacements/view.html").get()
+                val script = docReplacement.select("script").first(); // Get the script part
+                file.writeText(doc.html())
+                fileReplacement.writeText(docReplacement.html())
+                val widgetDataUpdater = WidgetDataUpdater()
+                widgetDataUpdater.update(appWidgetManager, thisWidget, views, file, fileReplacement, context)
+                widgetDataUpdater.updateMainPreview(rootView.findViewById(R.id.widgetBack), file,fileReplacement, context)
             } catch (e: IOException) {
                 //Если не получилось считать
-                e.printStackTrace()
+                    if(e.message?.contains("Unable to resolve host") == true) { // Нет интернета или не удалось добраться до сайта
+                        mainA.showWaitDialogByMain("Ошибка! Для обновления необходимо интернет соединение!", TipDialog.TYPE.ERROR)
+                    }
             }
+
+
+
+
             return null
         }
 
         override fun onPostExecute(result: Void?) {
             super.onPostExecute(result)
-
-            file.writeText(doc.html())
-
-            val widgetDataUpdater = WidgetDataUpdater()
-            rootView.findViewById<TextView>(R.id.col2).text = Jsoup.parse(file.readText())
-                .select("#dni-109" + widgetDataUpdater.getDate().toString() + "> b:nth-child(2)")
-                .text()
-            rootView.findViewById<TextView>(R.id.col3).text = Jsoup.parse(file.readText())
-                .select("#dni-109" + widgetDataUpdater.getDate().toString() + "> b:nth-child(8)")
-                .text()
-            rootView.findViewById<TextView>(R.id.col4).text = Jsoup.parse(file.readText())
-                .select("#dni-109" + widgetDataUpdater.getDate().toString() + "> b:nth-child(14)")
-                .text()
-            rootView.findViewById<TextView>(R.id.col5).text = Jsoup.parse(file.readText())
-                .select("#dni-109" + widgetDataUpdater.getDate().toString() + "> b:nth-child(20)")
-                .text()
-
-            widgetDataUpdater.update(appWidgetManager, thisWidget, views, file, context)
-            mainA.startUpdating() // Начинаем обновление
+            if(this::doc.isInitialized){
+                mainA.showWaitDialogByMain("Успешно загружено!", TipDialog.TYPE.SUCCESS)
+                mainA.startUpdating() // Начинаем обновление
+            }
         }
     }
 }

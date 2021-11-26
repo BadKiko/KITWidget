@@ -3,6 +3,10 @@ package com.kikogames.kitwidget
 import android.appwidget.AppWidgetManager
 import android.content.Context
 import android.content.res.Configuration.ORIENTATION_PORTRAIT
+import android.util.DisplayMetrics
+
+
+
 
 class WidgetSizeProvider(
     private val context: Context // Do not pass Application context

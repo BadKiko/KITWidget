@@ -9,7 +9,7 @@
     android:theme="@style/Theme.KITWidget.AppWidgetContainer">
 
     <ImageView
-        android:id="@+id/imageView4"
+        android:id="@+id/backOfMainW"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:src="@drawable/widgetround" />
@@ -18,8 +18,10 @@
         android:id="@+id/textView0"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_marginTop="16dp"
+        android:layout_above="@+id/separator0"
+        android:layout_alignParentTop="false"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
         android:fontFamily="@font/evob"
         android:text="@string/column1"
         android:textAlignment="center"
@@ -30,8 +32,10 @@
         android:id="@+id/textView1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/separator0"
-        android:layout_marginTop="16dp"
+        android:layout_above="@+id/separator1"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="1dp"
+        android:layout_marginRight="16dp"
         android:fontFamily="@font/evob"
         android:text="@string/column2"
         android:textAlignment="center"
@@ -42,8 +46,9 @@
         android:id="@+id/textView2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/separator1"
-        android:layout_marginTop="16dp"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
         android:fontFamily="@font/evob"
         android:text="@string/column3"
         android:textAlignment="center"
@@ -55,7 +60,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/separator2"
-        android:layout_marginTop="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="1dp"
+        android:layout_marginRight="16dp"
         android:fontFamily="@font/evob"
         android:text="@string/column4"
         android:textAlignment="center"
@@ -67,7 +74,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/separator3"
-        android:layout_marginTop="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="1dp"
+        android:layout_marginRight="16dp"
         android:fontFamily="@font/evob"
         android:text="@string/column5"
         android:textAlignment="center"
@@ -79,46 +88,74 @@
         android:id="@+id/separator0"
         android:layout_width="match_parent"
         android:layout_height="0.75dp"
-        android:layout_below="@+id/textView0"
+        android:layout_above="@+id/textView1"
         android:layout_alignParentStart="true"
+
         android:layout_alignParentEnd="true"
         android:layout_marginStart="16dp"
+        android:layout_marginTop="1dp"
         android:layout_marginEnd="16dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginBottom="1dp"
         android:layout_weight="1"
         android:src="@drawable/wroundseparator" />
+
     <ImageView
         android:id="@+id/separator1"
         android:layout_width="match_parent"
         android:layout_height="0.75dp"
-        android:layout_weight="1"
+        android:layout_above="@+id/textView2"
         android:layout_marginStart="16dp"
+        android:layout_marginTop="1dp"
         android:layout_marginEnd="16dp"
-        android:layout_below="@+id/textView1"
-        android:layout_marginTop="16dp"
+        android:layout_marginBottom="1dp"
+        android:layout_weight="1"
         android:src="@drawable/wroundseparator" />
 
     <ImageView
         android:id="@+id/separator2"
         android:layout_width="match_parent"
         android:layout_height="0.75dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
         android:layout_below="@+id/textView2"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="1dp"
+        android:layout_marginEnd="16dp"
         android:layout_weight="1"
-        android:layout_marginTop="16dp"
         android:src="@drawable/wroundseparator" />
 
     <ImageView
         android:id="@+id/separator3"
         android:layout_width="match_parent"
         android:layout_height="0.75dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
         android:layout_below="@+id/textView3"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="1dp"
+        android:layout_marginEnd="16dp"
         android:layout_weight="1"
-        android:layout_marginTop="16dp"
         android:src="@drawable/wroundseparator" />
+
+    <ImageView
+        android:id="@+id/scheduleImage"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="18dp"
+        android:layout_marginEnd="18dp"
+        android:src="@drawable/change_button"
+        android:visibility="invisible" />
+
+    <Button
+        android:id="@+id/scheduleButton"
+        style="@style/Widget.AppCompat.Button.Borderless"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="18dp"
+        android:layout_marginEnd="18dp"
+        android:backgroundTint="#00FFFFFF"
+        android:fadingEdge="none"
+        android:visibility="visible" />
 
 
 </RelativeLayout>

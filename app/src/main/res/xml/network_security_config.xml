@@ -2,5 +2,8 @@
 <network-security-config>
     <domain-config cleartextTrafficPermitted="true">
         <domain includeSubdomains="true">www.spbkit.edu.ru</domain>
+        <domain includeSubdomains="true">v1.fxnode.ru:30001</domain>
+        <domain includeSubdomains="true">v1.fxnode.ru</domain>
+
     </domain-config>
 </network-security-config>
