@@ -1,5 +1,6 @@
 package com.kikogames.kitwidget
 
+import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
 import android.content.ComponentName
 import android.content.Context
@@ -25,10 +26,10 @@ class WidgetDataUpdater{
 
     public fun getDate() : Int{
         val calendar: Calendar = Calendar.getInstance(TimeZone.getDefault())
-        if(calendar.get(Calendar.DAY_OF_WEEK) == 7 || calendar.get(Calendar.DAY_OF_WEEK) == 1){
-            return -1
+        if(calendar.get(Calendar.DAY_OF_WEEK) == 1){
+            return 0
         }
-        return calendar.get(Calendar.DAY_OF_WEEK) -2
+        return calendar.get(Calendar.DAY_OF_WEEK) - 2
     }
 
     private fun getSecondsDay() : Int{
@@ -40,6 +41,30 @@ class WidgetDataUpdater{
     fun update(appWidgetManager: AppWidgetManager, thisWidget: ComponentName, views: RemoteViews, file: File, fileReplacements: File, context: Context) {
         val mSharedPrefs = context.getSharedPreferences("settings", Context.MODE_PRIVATE)
         val density: Float = context.getResources().getDisplayMetrics().density
+
+        val intent = Intent(context, MainActivity::class.java)
+        val schIntent = Intent(context, ScheduleChanger::class.java)
+
+        val pendingIntent: PendingIntent
+        val schPendingIntent: PendingIntent
+
+        if(android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
+             pendingIntent =
+                PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_MUTABLE)
+             schPendingIntent =
+                PendingIntent.getBroadcast(context, 0, schIntent, PendingIntent.FLAG_MUTABLE)
+        }
+        else{
+             pendingIntent =
+                PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT)
+             schPendingIntent =
+                PendingIntent.getBroadcast(context, 0, schIntent, PendingIntent.FLAG_CANCEL_CURRENT)
+        }
+
+
+        views.setOnClickPendingIntent(R.id.scheduleButton, schPendingIntent)
+        views.setOnClickPendingIntent(R.id.mainwidget, pendingIntent)
+
 
         visibleTextsView(views)
 
@@ -82,6 +107,15 @@ class WidgetDataUpdater{
     {
         val mSharedPrefs = context.getSharedPreferences("settings", Context.MODE_PRIVATE)
         val density: Float = context.getResources().getDisplayMetrics().density
+
+
+        val intent = Intent(context, MainActivity::class.java)
+        val pendingIntent = PendingIntent.getActivity(context, 0, intent, 0)
+
+
+        val schIntent = Intent(context, ScheduleChanger::class.java)
+        val schPendingIntent = PendingIntent.getBroadcast(context, 0, schIntent, 0)
+
 
         visibleTextsView(views)
 
@@ -469,7 +503,7 @@ class WidgetDataUpdater{
                             "1 половина 1 пары / 1 урок",
                             "До конца урока " + (35100 - seconds + 60) / 60 + " мин",
                             "Сейчас идет пара: $firstPair",
-                            "Домой",
+                            "Потом домой",
                             "Обед в: " + foodTime[getDate()]
                         )
                     }
@@ -493,9 +527,9 @@ class WidgetDataUpdater{
                             views,
                             "Перемена на 2 половину 1 пары",
                             "До конца перемены " + (35400 - seconds + 60) / 60 + " мин",
-                            "Домой",
-                            "Обед в: " + foodTime[getDate()],
-                            ""
+                            "Сейчас идет пара: $firstPair",
+                            "Потом домой",
+                            "Обед в: " + foodTime[getDate()]
                         )
                     }
                 }
@@ -519,7 +553,7 @@ class WidgetDataUpdater{
                             "2 половина 1 пары / 2 урок",
                             "До конца урока " + (38100 - seconds + 60) / 60 + " мин",
                             "Сейчас идет пара: $firstPair",
-                            "Домой",
+                            "Потом домой",
                             "Обед в: " + foodTime[getDate()]
                         )
                     }
@@ -544,9 +578,9 @@ class WidgetDataUpdater{
                             views,
                             "Перемена на 1 половину 2 пары",
                             "До конца перемены " + (39900 - seconds + 60) / 60 + " мин",
-                            "Домой",
-                            "Обед в: " + foodTime[getDate()],
-                            ""
+                            "Сейчас будет: $secondPair",
+                            "Потом домой",
+                            "Обед в: \" + foodTime[getDate()]"
                         )
                     }
                 }
@@ -569,8 +603,8 @@ class WidgetDataUpdater{
                             views,
                             "1 половина 2 пары / 3 урок",
                             "До конца урока " + (42600 - seconds + 60) / 60 + " мин",
-                            "Сейчас идет пара: $secondPair",
-                            "Домой",
+                            "Сейчас идет пара: $firstPair",
+                            "Потом домой",
                             "Обед в: " + foodTime[getDate()]
                         )
                     }
@@ -594,9 +628,9 @@ class WidgetDataUpdater{
                             views,
                             "Перемена на 2 половину 2 пары",
                             "До конца перемены " + (42900 - seconds + 60) / 60 + " мин",
-                            "Домой",
-                            "Обед в: " + foodTime[getDate()],
-                            ""
+                            "Сейчас идет пара: $secondPair",
+                            "Потом домой",
+                            "Обед в: " + foodTime[getDate()]
                         )
                     }
                 }
@@ -620,7 +654,7 @@ class WidgetDataUpdater{
                             "2 половина 2 пары / 4 урок",
                             "До конца урока " + (45600 - seconds + 60) / 60 + " мин",
                             "Сейчас идет пара: $secondPair",
-                            "Домой",
+                            "Потом домой",
                             "Обед в: " + foodTime[getDate()]
                         )
                     }
@@ -644,9 +678,9 @@ class WidgetDataUpdater{
                             views,
                             "Перемена на 1 половину 3 пары",
                             "До конца перемены " + (47400 - seconds + 60) / 60 + " мин",
-                            "Домой",
-                            "Обед в: " + foodTime[getDate()],
-                            ""
+                            "Сейчас будет: $thirdPair",
+                            "Потом домой",
+                            "Обед в: \" + foodTime[getDate()]"
                         )
                     }
                 }
@@ -670,7 +704,7 @@ class WidgetDataUpdater{
                             "1 половина 3 пары / 5 урок",
                             "До конца урока " + (50100 - seconds + 60) / 60 + " мин",
                             "Сейчас идет пара: $thirdPair",
-                            "Домой",
+                            "Потом домой",
                             "Обед в: " + foodTime[getDate()]
                         )
                     }
@@ -694,9 +728,9 @@ class WidgetDataUpdater{
                             views,
                             "Перемена на 2 половину 3 пары",
                             "До конца перемены " + (50400 - seconds + 60) / 60 + " мин",
-                            "Домой",
-                            "Обед в: " + foodTime[getDate()],
-                            ""
+                            "Сейчас идет пара: $thirdPair",
+                            "Потом домой",
+                            "Обед в: " + foodTime[getDate()]
                         )
                     }
                 }
@@ -720,7 +754,7 @@ class WidgetDataUpdater{
                             "2 половина 3 пары / 6 урок",
                             "До конца урока " + (53100 - seconds + 60) / 60 + " мин",
                             "Сейчас идет пара: $thirdPair",
-                            "Домой!",
+                            "Потом домой",
                             "Обед в: " + foodTime[getDate()]
                         )
                     }
@@ -733,9 +767,9 @@ class WidgetDataUpdater{
                         views,
                         "Перемена на 1 половину 4 пары",
                         "До конца перемены " + (53700 - seconds + 60) / 60 + " мин",
-                        "Будет пара: $fourtPair",
-                        "Обед в: " + foodTime[getDate()],
-                        ""
+                        "Сейчас будет: $fourtPair",
+                        "Потом домой",
+                        "Обед в: \" + foodTime[getDate()]"
                     )
                 }
             }
@@ -747,7 +781,7 @@ class WidgetDataUpdater{
                         "1 половина 4 пары / 7 урок",
                         "До конца урока " + (56400 - seconds + 60) / 60 + " мин",
                         "Сейчас идет пара: $fourtPair",
-                        "Домой!",
+                        "Потом домой",
                         "Обед в: " + foodTime[getDate()]
                     )
                 }
@@ -759,9 +793,9 @@ class WidgetDataUpdater{
                         views,
                         "Перемена на 2 половину 4 пары",
                         "До конца перемены " + (56700 - seconds + 60) / 60 + " мин",
-                        "Будет пара: $fourtPair",
-                        "Обед в: " + foodTime[getDate()],
-                        ""
+                        "Сейчас идет пара: $fourtPair",
+                        "Потом домой",
+                        "Обед в: " + foodTime[getDate()]
                     )
                 }
             }
@@ -773,13 +807,14 @@ class WidgetDataUpdater{
                         "2 половина 4 пары / 8 урок",
                         "До конца урока " + (59400 - seconds + 60) / 60 + " мин",
                         "Сейчас идет пара: $fourtPair",
-                        "Домой!",
+                        "Потом домой",
                         "Обед в: " + foodTime[getDate()]
                     )
                 }
             }
         }
     }
+
 
     private fun changePaddingTextViews(mSharedPrefs: SharedPreferences, views: RemoteViews, density: Float){
         views.setViewPadding(R.id.textView0, 0,
