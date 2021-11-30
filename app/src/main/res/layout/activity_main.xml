@@ -438,5 +438,16 @@
             app:layout_constraintTop_toTopOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
+    <com.github.mmin18.widget.RealtimeBlurView
+        android:id="@+id/blur"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:realtimeBlurRadius="0dp"
+        app:realtimeOverlayColor="#8000" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

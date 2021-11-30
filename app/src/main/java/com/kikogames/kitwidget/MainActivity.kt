@@ -1,5 +1,6 @@
 package com.kikogames.kitwidget
 
+import android.animation.ValueAnimator
 import android.app.AlarmManager
 import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
@@ -24,7 +25,11 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import android.content.res.ColorStateList
 import android.graphics.Color
 import androidx.core.view.children
+import com.github.mmin18.widget.RealtimeBlurView
+import com.kongzue.dialog.interfaces.OnDialogButtonClickListener
 import com.kongzue.dialog.util.DialogSettings
+import com.kongzue.dialog.util.view.BlurView
+import com.kongzue.dialog.v3.MessageDialog
 import com.kongzue.dialog.v3.TipDialog
 import com.kongzue.dialog.v3.WaitDialog
 import me.jfenn.colorpickerdialog.dialogs.ColorPickerDialog
@@ -65,15 +70,29 @@ class MainActivity : AppCompatActivity() {
         val mSharedPrefs = applicationContext.getSharedPreferences("settings", Context.MODE_PRIVATE)
         val editR = mSharedPrefs.edit()
 
-
-        DialogSettings.isUseBlur=true
-
         appWidgetManager = AppWidgetManager.getInstance(this)
         thisWidget = ComponentName(this, MainWidget::class.java)
         remoteViews = RemoteViews(packageName, R.layout.main_widget)
 
-
+        DialogSettings.theme = DialogSettings.THEME.DARK
         getDirectory() // Получаем main директорию
+
+
+        if(appWidgetManager.getAppWidgetIds(thisWidget).size <= 1) {
+            MessageDialog.build(this)
+                .setCancelButton("Отмена")
+                .setOkButton("Создать", OnDialogButtonClickListener { baseDialog, v ->
+                    val pickIntent = Intent(AppWidgetManager.ACTION_APPWIDGET_PICK)
+                    pickIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetManager.getAppWidgetIds(thisWidget)[0])
+                    startActivityForResult(pickIntent, 1111)
+                    return@OnDialogButtonClickListener false
+                })
+                .setMessage("Сначала необходимо создать виджет!")
+                .setTitle("Нет виджета!")
+                .setStyle(DialogSettings.STYLE.STYLE_IOS)
+                .show()
+        }
+
 
         if (File("$directory/temp.html").exists()) {
             file = File("$directory/temp.html")
@@ -244,7 +263,23 @@ class MainActivity : AppCompatActivity() {
             }
         }
         updateButton.setOnClickListener {
-            parseHTML(this)
+            if(appWidgetManager.getAppWidgetIds(thisWidget).size > 1) {
+                parseHTML(this)
+            }
+            else{
+                MessageDialog.build(this)
+                    .setCancelButton("Отмена")
+                    .setOkButton("Создать", OnDialogButtonClickListener { baseDialog, v ->
+                        val pickIntent = Intent(AppWidgetManager.ACTION_APPWIDGET_PICK)
+                        pickIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetManager.getAppWidgetIds(thisWidget)[0])
+                        startActivityForResult(pickIntent, 76876)
+                        return@OnDialogButtonClickListener false
+                    })
+                    .setMessage("Сначала необходимо создать виджет!")
+                    .setTitle("Нет виджета!")
+                    .setStyle(DialogSettings.STYLE.STYLE_IOS)
+                    .show()
+            }
 
             if(File("$directory/replacementTemp.html").readText() != "" && File("$directory/temp.html").readText() != "") {
                 widgetDataUpdater.update(
@@ -297,11 +332,12 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    fun showWaitDialogByMain(text: String){
+        WaitDialog.show(this, text)
+    }
+
     fun showWaitDialogByMain(text: String, td: TipDialog.TYPE){
         WaitDialog.show(this, text, td)
-    }
-    fun showWaitDialogByMain(text: String, td: TipDialog.TYPE, time: Int){
-        WaitDialog.show(this, text, td).setTipTime(time)
     }
 
     private fun updateAllOffsets(progress: Int){
@@ -416,9 +452,10 @@ class MainActivity : AppCompatActivity() {
         val ar = AsyncRequest()
         ar.takeMainThread(file, remoteViews, appWidgetManager, thisWidget, this, findViewById(R.id.root), context, fileReplacement)
         ar.execute()
-        WaitDialog.show(this, "Получение расписания...")
 
-        //TODO("ОБЯЗАТЕЛЬНО ПОФИКСИТЬ ЗДЕСЬ ОШИБКА, если нет виджета то приложение вылетит!")
+        findViewById<RealtimeBlurView>(R.id.blur).visibility = View.VISIBLE
+
+        showWaitDialogByMain("Получение расписания...")
     }
 
     internal class AsyncRequest : AsyncTask<Void?, Void?, Void?>() { // Создаем поток Networking
@@ -468,9 +505,6 @@ class MainActivity : AppCompatActivity() {
                 val script = docReplacement.select("script").first(); // Get the script part
                 file.writeText(doc.html())
                 fileReplacement.writeText(docReplacement.html())
-                val widgetDataUpdater = WidgetDataUpdater()
-                widgetDataUpdater.update(appWidgetManager, thisWidget, views, file, fileReplacement, context)
-                widgetDataUpdater.updateMainPreview(rootView.findViewById(R.id.widgetBack), file,fileReplacement, context)
             } catch (e: IOException) {
                 //Если не получилось считать
                     if(e.message?.contains("Unable to resolve host") == true) { // Нет интернета или не удалось добраться до сайта
@@ -487,6 +521,9 @@ class MainActivity : AppCompatActivity() {
         override fun onPostExecute(result: Void?) {
             super.onPostExecute(result)
             if(this::doc.isInitialized){
+                val widgetDataUpdater = WidgetDataUpdater()
+                widgetDataUpdater.update(appWidgetManager, thisWidget, views, file, fileReplacement, context)
+                widgetDataUpdater.updateMainPreview(rootView.findViewById(R.id.widgetBack), file,fileReplacement, context)
                 mainA.showWaitDialogByMain("Успешно загружено!", TipDialog.TYPE.SUCCESS)
                 mainA.startUpdating() // Начинаем обновление
             }
