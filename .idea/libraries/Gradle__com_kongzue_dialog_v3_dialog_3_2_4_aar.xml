@@ -4,6 +4,9 @@
       <root url="jar://$USER_HOME$/.gradle/caches/transforms-3/e642614c8f127c393d3f3cf73b8ec0b4/transformed/jetified-dialog-3.2.4/jars/classes.jar!/" />
       <root url="file://$USER_HOME$/.gradle/caches/transforms-3/e642614c8f127c393d3f3cf73b8ec0b4/transformed/jetified-dialog-3.2.4/res" />
       <root url="file://$USER_HOME$/.gradle/caches/transforms-3/e642614c8f127c393d3f3cf73b8ec0b4/transformed/jetified-dialog-3.2.4/AndroidManifest.xml" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-3/639c30c85f8b540611d03f3148d0f24c/transformed/jetified-dialog-3.2.4/res" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-3/639c30c85f8b540611d03f3148d0f24c/transformed/jetified-dialog-3.2.4/AndroidManifest.xml" />
+      <root url="jar://$USER_HOME$/.gradle/caches/transforms-3/639c30c85f8b540611d03f3148d0f24c/transformed/jetified-dialog-3.2.4/jars/classes.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES>
