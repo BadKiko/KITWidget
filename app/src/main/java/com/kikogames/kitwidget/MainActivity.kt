@@ -24,6 +24,8 @@ import android.widget.SeekBar.OnSeekBarChangeListener
 import androidx.constraintlayout.widget.ConstraintLayout
 import android.content.res.ColorStateList
 import android.graphics.Color
+import android.net.Uri
+import android.webkit.WebView
 import androidx.core.view.children
 import com.github.mmin18.widget.RealtimeBlurView
 import com.kongzue.dialog.interfaces.OnDialogButtonClickListener
@@ -36,6 +38,13 @@ import me.jfenn.colorpickerdialog.dialogs.ColorPickerDialog
 import me.jfenn.colorpickerdialog.views.picker.ImagePickerView
 import org.jsoup.nodes.Element
 import java.lang.reflect.Type
+import android.webkit.JavascriptInterface
+import android.webkit.WebViewClient
+import android.os.PowerManager
+
+import android.os.Build
+import android.provider.Settings
+
 
 class MainActivity : AppCompatActivity() {
     lateinit var directory: String
@@ -77,8 +86,7 @@ class MainActivity : AppCompatActivity() {
         DialogSettings.theme = DialogSettings.THEME.DARK
         getDirectory() // Получаем main директорию
 
-
-        if(appWidgetManager.getAppWidgetIds(thisWidget).size <= 1) {
+        if(appWidgetManager.getAppWidgetIds(thisWidget).isEmpty()) {
             MessageDialog.build(this)
                 .setCancelButton("Отмена")
                 .setOkButton("Создать", OnDialogButtonClickListener { baseDialog, v ->
@@ -109,14 +117,8 @@ class MainActivity : AppCompatActivity() {
             Log.d("[FS]", "Can't delete file, file isn't exists")
         }
 
-
-
-        if(mSharedPrefs.contains("color_background")){
-            findViewById<View>(R.id.widgetBack).backgroundTintList = ColorStateList.valueOf(mSharedPrefs.getInt("color_background", 0))
-        }
-        if(mSharedPrefs.contains("color_text")){
-            colorizeWidgetText(mSharedPrefs.getInt("color_text", 0))
-        }
+        findViewById<View>(R.id.widgetBack).backgroundTintList = ColorStateList.valueOf(mSharedPrefs.getInt("color_background", -15921907))
+        colorizeWidgetText(mSharedPrefs.getInt("color_text", -855310))
 
         updateColumnsInReview()
 
@@ -157,20 +159,29 @@ class MainActivity : AppCompatActivity() {
             updateOnce()
         }
 
-        musicCheckBox.isChecked = mSharedPrefs.getBoolean("music", false)
-        if(musicCheckBox.isChecked){
-            startService(Intent(this, MusicArt::class.java))
-        }
-        musicCheckBox.setOnCheckedChangeListener { buttonView, isChecked ->
-            editR.putBoolean("music", isChecked)
-            editR.apply()
-            if(isChecked){
+            musicCheckBox.isChecked = mSharedPrefs.getBoolean("music", false)
+            if (musicCheckBox.isChecked) {
                 startService(Intent(this, MusicArt::class.java))
             }
-            else {
-                stopService(Intent(this, MusicArt::class.java))
+
+            musicCheckBox.setOnCheckedChangeListener { buttonView, isChecked ->
+                if(checkNotificationPermission()) {
+                    editR.putBoolean("music", isChecked)
+                    editR.apply()
+                    if (isChecked) {
+                        startService(Intent(this, MusicArt::class.java))
+                    } else {
+                        stopService(Intent(this, MusicArt::class.java))
+                    }
+                    updateOnce()
+                }
+                else{
+                    musicCheckBox.isChecked = false
+                    showkNotificationPermission()
+                }
             }
-        }
+
+
 
         if (!mSharedPrefs.contains("fontSize")) {
             editR.putInt("fontSize", 14)
@@ -263,29 +274,36 @@ class MainActivity : AppCompatActivity() {
             }
         }
         updateButton.setOnClickListener {
-            if(appWidgetManager.getAppWidgetIds(thisWidget).size > 1) {
-                parseHTML(this)
+            if(checkBateeryIsIgnoring()) {
+                if (appWidgetManager.getAppWidgetIds(thisWidget).isNotEmpty()) {
+                    parseHTML(this)
+                } else {
+                    MessageDialog.build(this)
+                        .setCancelButton("Отмена")
+                        .setOkButton("Создать", OnDialogButtonClickListener { baseDialog, v ->
+                            val pickIntent = Intent(AppWidgetManager.ACTION_APPWIDGET_PICK)
+                            pickIntent.putExtra(
+                                AppWidgetManager.EXTRA_APPWIDGET_ID,
+                                appWidgetManager.getAppWidgetIds(thisWidget)[0]
+                            )
+                            startActivityForResult(pickIntent, 76876)
+                            return@OnDialogButtonClickListener false
+                        })
+                        .setMessage("Сначала необходимо создать виджет!")
+                        .setTitle("Нет виджета!")
+                        .setStyle(DialogSettings.STYLE.STYLE_IOS)
+                        .show()
+                }
+
+                if (File("$directory/replacementTemp.html").readText() != "" && File("$directory/temp.html").readText() != "") {
+                    widgetDataUpdater.update(
+                        appWidgetManager,
+                        thisWidget, remoteViews, file, fileReplacement, applicationContext
+                    )
+                }
             }
             else{
-                MessageDialog.build(this)
-                    .setCancelButton("Отмена")
-                    .setOkButton("Создать", OnDialogButtonClickListener { baseDialog, v ->
-                        val pickIntent = Intent(AppWidgetManager.ACTION_APPWIDGET_PICK)
-                        pickIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetManager.getAppWidgetIds(thisWidget)[0])
-                        startActivityForResult(pickIntent, 76876)
-                        return@OnDialogButtonClickListener false
-                    })
-                    .setMessage("Сначала необходимо создать виджет!")
-                    .setTitle("Нет виджета!")
-                    .setStyle(DialogSettings.STYLE.STYLE_IOS)
-                    .show()
-            }
-
-            if(File("$directory/replacementTemp.html").readText() != "" && File("$directory/temp.html").readText() != "") {
-                widgetDataUpdater.update(
-                    appWidgetManager,
-                    thisWidget, remoteViews, file, fileReplacement, applicationContext
-                )
+                showBatteryIsIgnoring()
             }
         }
 
@@ -296,7 +314,7 @@ class MainActivity : AppCompatActivity() {
                 .withTheme(R.style.ColorPickerDialog_Dark)
                 .withCornerRadius(20f)
                 .withPresets(Color.RED, Color.GREEN, Color.BLUE)
-                .withColor(mSharedPrefs.getInt("color_background", Color.GRAY)) // the default / initial color
+                .withColor(mSharedPrefs.getInt("color_background", -15921907)) // the default / initial color
                 .withListener { dialog, color ->
                     findViewById<View>(R.id.widgetBack).backgroundTintList = ColorStateList.valueOf(color)
                     editR.putInt("color_background",color)
@@ -311,7 +329,7 @@ class MainActivity : AppCompatActivity() {
                 .withTheme(R.style.ColorPickerDialog_Dark)
                 .withCornerRadius(20f)
                 .withPresets(Color.RED, Color.GREEN, Color.BLUE)
-                .withColor(mSharedPrefs.getInt("color_text", Color.GRAY)) // the default / initial color
+                .withColor(mSharedPrefs.getInt("color_text", -855310)) // the default / initial color
                 .withListener { dialog, color ->
                     colorizeWidgetText(color)
                     editR.putInt("color_text",color)
@@ -321,7 +339,10 @@ class MainActivity : AppCompatActivity() {
                 .show(supportFragmentManager, "colorPicker")
         }
 
-        startUpdating()
+        if(checkBateeryIsIgnoring())
+            startUpdating()
+        else
+            showBatteryIsIgnoring()
     }
 
     private fun updateAllTextSizes(progress: Int){
@@ -331,6 +352,68 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
+
+    //////////PERMISSIONS WORK/////////
+
+    fun checkNotificationPermission() : Boolean{
+        return android.provider.Settings.Secure
+            .getString(contentResolver, "enabled_notification_listeners")
+            .contains(applicationContext.packageName)
+    }
+
+    fun showkNotificationPermission(){
+        val granted = android.provider.Settings.Secure
+            .getString(contentResolver, "enabled_notification_listeners")
+            .contains(applicationContext.packageName)
+        if(!granted){
+            MessageDialog.build(this)
+                .setCancelButton("Отмена")
+                .setOkButton("Разрешить", OnDialogButtonClickListener { baseDialog, v ->
+                    startActivity(Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS"))
+                    return@OnDialogButtonClickListener false
+                })
+                .setMessage("Сначала необходимо дать приложению доступ к уведомлениям." +
+                        "\nЭто даст приложению возможность точно обновлять виджет когда играет музыка и брать обложку музыки")
+                .setTitle("Получение обложки музыки")
+                .setStyle(DialogSettings.STYLE.STYLE_IOS)
+                .show()
+        }
+    }
+
+    fun checkBateeryIsIgnoring():Boolean{
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            val intent = Intent()
+            val packageName = packageName
+            val pm = getSystemService(POWER_SERVICE) as PowerManager
+            return pm.isIgnoringBatteryOptimizations(packageName)
+        }
+        return true
+    }
+
+    fun showBatteryIsIgnoring(){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            val intent = Intent()
+            val packageName = packageName
+            val pm = getSystemService(POWER_SERVICE) as PowerManager
+            if (!pm.isIgnoringBatteryOptimizations(packageName)) {
+                MessageDialog.build(this)
+                    .setCancelButton("Отмена")
+                    .setOkButton("Разрешить", OnDialogButtonClickListener { baseDialog, v ->
+                        intent.action = Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS
+                        intent.data = Uri.parse("package:$packageName")
+                        startActivity(intent)
+                        return@OnDialogButtonClickListener false
+                    })
+                    .setMessage("Сначала необходимо дать приложению доступ к неограниченному использованию в фоне." +
+                            "\nЭто даст приложению возможность обновлять виджет даже когда главное приложение закрыто.")
+                    .setTitle("Использование в фоне")
+                    .setStyle(DialogSettings.STYLE.STYLE_IOS)
+                    .show()
+            }
+        }
+    }
+
+    //////////DIALOGS////////////
 
     fun showWaitDialogByMain(text: String){
         WaitDialog.show(this, text)
@@ -364,29 +447,46 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun startUpdating() {
-        val alarmMan = applicationContext.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        if(checkBateeryIsIgnoring()) {
+            val alarmMan =
+                applicationContext.getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
-        val intent = Intent(applicationContext, UpdateWidget::class.java)
+            val intent = Intent(applicationContext, UpdateWidget::class.java)
 
-        val pendingIntent: PendingIntent
+            val pendingIntent: PendingIntent
 
-        if(android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.S){
-            pendingIntent = PendingIntent.getBroadcast(applicationContext, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT)
+            if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.S) {
+                pendingIntent = PendingIntent.getBroadcast(
+                    applicationContext,
+                    0,
+                    intent,
+                    PendingIntent.FLAG_CANCEL_CURRENT
+                )
+            } else {
+                pendingIntent = PendingIntent.getBroadcast(
+                    applicationContext,
+                    0,
+                    intent,
+                    PendingIntent.FLAG_MUTABLE
+                )
+            }
+
+            val nextMinute = ((System.currentTimeMillis() / 60000) + 1) * 60000
+
+            Log.d(
+                "[SYSTEM]",
+                "NEXT MIN: " + nextMinute.toString() + " AND " + "SYSTEM: " + System.currentTimeMillis()
+            )
+
+            alarmMan.setRepeating(AlarmManager.RTC_WAKEUP, nextMinute, 60000, pendingIntent)
         }
-        else{
-            pendingIntent = PendingIntent.getBroadcast(applicationContext, 0, intent, PendingIntent.FLAG_MUTABLE)
-        }
-
-        val nextMinute = ((System.currentTimeMillis()/60000)+1)*60000
-
-        Log.d("[SYSTEM]", "NEXT MIN: " + nextMinute.toString() + " AND " + "SYSTEM: " + System.currentTimeMillis())
-
-        alarmMan.setRepeating(AlarmManager.RTC_WAKEUP ,nextMinute, 60000, pendingIntent)
+        else
+            showBatteryIsIgnoring()
 
     }
 
     private fun updateOnce() {
-        widgetDataUpdater.update(appWidgetManager, thisWidget, remoteViews, file, fileReplacement, applicationContext)
+            widgetDataUpdater.update(appWidgetManager, thisWidget, remoteViews, file, fileReplacement, applicationContext)
     }
 
     fun colorizeWidgetText(color: Int){
@@ -449,6 +549,18 @@ class MainActivity : AppCompatActivity() {
         val inputSite = File("$directory/temp.html")
         val inputReplacements = File("$directory/replacementTemp.html")
 
+        val mjint = MyJavaScriptInterface()
+        val wbvc = WBV_C()
+        val wbv = findViewById<WebView>(R.id.wbv)
+
+        mjint.mainTake(context, this)
+        wbvc.setMain(context, wbv)
+
+        wbv.settings.javaScriptEnabled=true
+        wbv.addJavascriptInterface(mjint, "HtmlHandler")
+        wbv.webViewClient = wbvc
+        wbv.loadUrl("http://v1.fxnode.ru:30001/replacements/view.html")
+
         val ar = AsyncRequest()
         ar.takeMainThread(file, remoteViews, appWidgetManager, thisWidget, this, findViewById(R.id.root), context, fileReplacement)
         ar.execute()
@@ -456,6 +568,42 @@ class MainActivity : AppCompatActivity() {
         findViewById<RealtimeBlurView>(R.id.blur).visibility = View.VISIBLE
 
         showWaitDialogByMain("Получение расписания...")
+    }
+
+    class MyJavaScriptInterface {
+        lateinit var context: Context
+        lateinit var mainA: MainActivity
+
+        fun mainTake(cont: Context, ma: MainActivity){
+            context = cont
+            mainA = ma
+        }
+
+        @JavascriptInterface
+        fun handleHtml(html: String?) {
+            if (html != null) {
+                mainA.fileReplacement.writeText(html)
+                mainA.startUpdating() // Начинаем обновление
+            }
+        }
+    }
+
+
+    private class WBV_C : WebViewClient()
+    {
+        lateinit var context: Context
+        lateinit var webview: WebView
+
+        fun setMain(cont: Context, wb: WebView){
+            context = cont
+            webview = wb
+        }
+
+        override fun onPageFinished(view: WebView?, url: String?) {
+            super.onPageFinished(view, url)
+            webview.loadUrl("javascript:window.HtmlHandler.handleHtml" +
+                    "('<html>'+document.getElementsByTagName('html')[0].innerHTML+'</html>');");
+        }
     }
 
     internal class AsyncRequest : AsyncTask<Void?, Void?, Void?>() { // Создаем поток Networking
@@ -471,7 +619,7 @@ class MainActivity : AppCompatActivity() {
         var mainA: MainActivity = MainActivity()
         lateinit var rootView: View
         lateinit  var context: Context
-
+        lateinit var mjint: MyJavaScriptInterface
         lateinit var apca: AppCompatActivity
 
 
@@ -511,10 +659,6 @@ class MainActivity : AppCompatActivity() {
                         mainA.showWaitDialogByMain("Ошибка! Для обновления необходимо интернет соединение!", TipDialog.TYPE.ERROR)
                     }
             }
-
-
-
-
             return null
         }
 
@@ -525,7 +669,6 @@ class MainActivity : AppCompatActivity() {
                 widgetDataUpdater.update(appWidgetManager, thisWidget, views, file, fileReplacement, context)
                 widgetDataUpdater.updateMainPreview(rootView.findViewById(R.id.widgetBack), file,fileReplacement, context)
                 mainA.showWaitDialogByMain("Успешно загружено!", TipDialog.TYPE.SUCCESS)
-                mainA.startUpdating() // Начинаем обновление
             }
         }
     }

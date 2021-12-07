@@ -42,55 +42,58 @@ class MusicArt() : NotificationListenerService() {
     @RequiresApi(Build.VERSION_CODES.P)
     override fun onNotificationPosted(sbn: StatusBarNotification?) {
         super.onNotificationPosted(sbn)
+        val mSharedPrefs = applicationContext.getSharedPreferences("settings", Context.MODE_PRIVATE)
+        val editR = mSharedPrefs.edit()
 
-        val bundle = sbn!!.notification.extras
-        if(bundle.containsKey(Notification.EXTRA_LARGE_ICON)) {
-            try {
-                if ((bundle["android.largeIcon"] as Icon?)?.loadDrawable(baseContext)
-                    ?.toBitmap()?.density == 440
-                ) {
-                    Palette.generateAsync(
-                        (bundle["android.largeIcon"] as Icon).loadDrawable(
-                            baseContext
-                        ).toBitmap(), PaletteAsyncListener {
-                            val dColor = it?.getDominantColor(0) as Int
-                            val mColor = it.getVibrantColor(0) as Int
-                            val appWidgetManager = AppWidgetManager.getInstance(this)
-                            val thisWidget = ComponentName(this, MainWidget::class.java)
-                            val remoteViews = RemoteViews(packageName, R.layout.main_widget)
-                            val file: File
-                            if (File("@/temp.html").exists()) {
-                                file = File("${getDirectory()}/temp.html")
-                            } else {
-                                File("${getDirectory()}/temp.html").createNewFile()
-                                file = File("${getDirectory()}/temp.html")
-                                Log.d("[FS]", "Can't delete file, file isn't exists")
-                            }
+        if(mSharedPrefs.getBoolean("music", false)) {
+            val bundle = sbn!!.notification.extras
+            if (bundle.containsKey(Notification.EXTRA_LARGE_ICON)) {
+                try {
+                    if ((bundle["android.largeIcon"] as Icon?)?.loadDrawable(baseContext)
+                            ?.toBitmap()?.density == 440
+                    ) {
+                        Palette.generateAsync(
+                            (bundle["android.largeIcon"] as Icon).loadDrawable(
+                                baseContext
+                            ).toBitmap(), PaletteAsyncListener {
+                                val dColor = it?.getDominantColor(0) as Int
+                                val mColor = it.getVibrantColor(0) as Int
+                                val appWidgetManager = AppWidgetManager.getInstance(this)
+                                val thisWidget = ComponentName(this, MainWidget::class.java)
+                                val remoteViews = RemoteViews(packageName, R.layout.main_widget)
+                                val file: File
+                                if (File("@/temp.html").exists()) {
+                                    file = File("${getDirectory()}/temp.html")
+                                } else {
+                                    File("${getDirectory()}/temp.html").createNewFile()
+                                    file = File("${getDirectory()}/temp.html")
+                                    Log.d("[FS]", "Can't delete file, file isn't exists")
+                                }
 
-                            val fileReplacement: File
-                            if (File("@/temp.html").exists()) {
-                                fileReplacement = File("${getDirectory()}/replacementTemp.html")
-                            } else {
-                                File("${getDirectory()}/temp.html").createNewFile()
-                                fileReplacement = File("${getDirectory()}/replacementTemp.html")
-                                Log.d("[FS]", "Can't delete file, file isn't exists")
-                            }
+                                val fileReplacement: File
+                                if (File("@/temp.html").exists()) {
+                                    fileReplacement = File("${getDirectory()}/replacementTemp.html")
+                                } else {
+                                    File("${getDirectory()}/temp.html").createNewFile()
+                                    fileReplacement = File("${getDirectory()}/replacementTemp.html")
+                                    Log.d("[FS]", "Can't delete file, file isn't exists")
+                                }
 
 
-                            updateOnce(
-                                appWidgetManager,
-                                thisWidget,
-                                remoteViews,
-                                file,
-                                fileReplacement,
-                                dColor,
-                                mColor
-                            )
-                        })
+                                updateOnce(
+                                    appWidgetManager,
+                                    thisWidget,
+                                    remoteViews,
+                                    file,
+                                    fileReplacement,
+                                    dColor,
+                                    mColor
+                                )
+                            })
+                    }
+                } catch (e: IOException) {
+                    Log.e("[ERROR]", e.toString())
                 }
-            }
-            catch (e: IOException){
-                Log.e("[ERROR]", e.toString())
             }
         }
     }

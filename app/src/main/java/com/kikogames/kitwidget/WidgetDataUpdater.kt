@@ -19,6 +19,9 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.children
+import org.jsoup.nodes.Element
+import org.jsoup.select.Elements
+import kotlin.collections.ArrayList
 
 class WidgetDataUpdater{
 
@@ -38,7 +41,8 @@ class WidgetDataUpdater{
     }
 
 
-    fun update(appWidgetManager: AppWidgetManager, thisWidget: ComponentName, views: RemoteViews, file: File, fileReplacements: File, context: Context) {
+    fun update(appWidgetManager: AppWidgetManager, thisWidget: ComponentName, views: RemoteViews,
+               file: File, fileReplacements: File, context: Context) {
         val mSharedPrefs = context.getSharedPreferences("settings", Context.MODE_PRIVATE)
         val density: Float = context.getResources().getDisplayMetrics().density
 
@@ -69,11 +73,11 @@ class WidgetDataUpdater{
         visibleTextsView(views)
 
         if(!mSharedPrefs.getBoolean("schFull", false)) {
-            chooseNeedData(views, file, fileReplacements, getSecondsDay(), context)
+            chooseNeedData(views, file, fileReplacements, getSecondsDay())
         }
         else
         {
-            parseAllToTextViews(views, file, 0)
+            parseAllToTextViews(views, file, fileReplacements, 0)
         }
 
         changeSizeTextViews(mSharedPrefs, views)
@@ -98,12 +102,44 @@ class WidgetDataUpdater{
         }
     }
 
-    fun getReplacements(context: Context, fileReplacements: File) : Int{
-       // Toast.makeText(context, fileReplacements.readText(), Toast.LENGTH_SHORT).show()
-        return 0
+    fun getReplacements(fileReplacements: File) : Pair<Boolean, ArrayList<String>>{
+        val needPairs = ArrayList<String>()
+
+        for(group: Element in Jsoup.parse(fileReplacements.readText()).select("td.section")){
+            if(group.text() == "205"){
+                // Ищем в нашем html строку и обрезаем все что до нее
+                val pairs = Jsoup.parse(
+                    Jsoup.parse(
+                        fileReplacements.readText()
+                    ).html()
+                        .substringAfter(group.parent().html())
+                        .substringBefore(Jsoup.parse(fileReplacements.readText())
+                            .select("td.footer").get(0).parent().html())
+                        .substringBefore(Jsoup.parse(fileReplacements.readText())
+                            .select("td.section").get(1).parent().html())
+                        .replaceFirst("</tr>", "<table>")
+                        .substringBeforeLast("<tr>")
+                ).select("tr")
+
+
+                for(pair: Element in pairs){
+                    if(pair.select("td.content").get(0).text() != "№ пары"){
+                        for(inPair in pair.select("td.content")){
+                            needPairs.add(inPair.text())
+                        }
+                    }
+                }
+            }
+        }
+
+        if(needPairs.isNotEmpty())
+            return Pair(true, needPairs)
+
+        return Pair(false, needPairs)
     }
 
-    fun update(appWidgetManager: AppWidgetManager, thisWidget: ComponentName, views: RemoteViews, file: File, fileReplacements: File, context: Context, colorD: Int, colorM: Int)
+    fun update(appWidgetManager: AppWidgetManager, thisWidget: ComponentName, views: RemoteViews,
+               file: File, fileReplacements: File, context: Context, colorD: Int, colorM: Int)
     {
         val mSharedPrefs = context.getSharedPreferences("settings", Context.MODE_PRIVATE)
         val density: Float = context.getResources().getDisplayMetrics().density
@@ -119,7 +155,7 @@ class WidgetDataUpdater{
 
         visibleTextsView(views)
 
-        chooseNeedData(views, file, fileReplacements, getSecondsDay(), context)
+        chooseNeedData(views, file, fileReplacements, getSecondsDay())
 
         changeSizeTextViews(mSharedPrefs, views)
         changePaddingTextViews(mSharedPrefs, views, density)
@@ -131,11 +167,12 @@ class WidgetDataUpdater{
         }
     }
 
-    fun updateMainPreview(views: ConstraintLayout, file: File, fileReplacements: File, context: Context) {
+    fun updateMainPreview(views: ConstraintLayout, file: File,
+                          fileReplacements: File, context: Context) {
         chooseNeedData(views, file, fileReplacements, getSecondsDay(), context)
     }
 
-    fun parseAllToTextViews(views: RemoteViews, file: File, day: Int){
+    fun parseAllToTextViews(views: RemoteViews, file: File,fileReplacements: File,day: Int){
         if (day == 0){
             views.setTextViewText(R.id.textView0, "Расписание на сегодня")
         }
@@ -143,15 +180,36 @@ class WidgetDataUpdater{
             views.setTextViewText(R.id.textView0, "Расписание на завтра")
         }
 
-        views.setTextViewText(R.id.textView1, Jsoup.parse(file.readText()).select("#dni-109" + (getDate()+day).toString() + "> b:nth-child(2)").text())
-        Log.d("[PARSE LOG]", Jsoup.parse(file.readText()).select("#dni-109"+(getDate()+day).toString() + "> b:nth-child(2)").text())
-        views.setTextViewText(R.id.textView2, Jsoup.parse(file.readText()).select("#dni-109"+(getDate()+day).toString() +" > b:nth-child(8)").text())
-        Log.d("[PARSE LOG]", Jsoup.parse(file.readText()).select("#dni-109"+(getDate()+day).toString() +" > b:nth-child(8)").text())
-        views.setTextViewText(R.id.textView3, Jsoup.parse(file.readText()).select("#dni-109"+(getDate()+day).toString() +" > b:nth-child(14)").text())
-        Log.d("[PARSE LOG]", Jsoup.parse(file.readText()).select("#dni-109"+(getDate()+day).toString() +" > b:nth-child(14)").text())
-        views.setTextViewText(R.id.textView4, Jsoup.parse(file.readText()).select("#dni-109"+(getDate()+day).toString() +" > b:nth-child(20)").text())
-        Log.d("[PARSE LOG]", Jsoup.parse(file.readText()).select("#dni-109"+(getDate()+day).toString() +" > b:nth-child(20)").text())
+        val firstPair = Jsoup.parse(file.readText()).select("#dni-109" + (getDate()).toString() + "> b:nth-child(2)").text()
+        val secondPair = Jsoup.parse(file.readText()).select("#dni-109" + (getDate()).toString() + "> b:nth-child(8)").text()
+        val thirdPair = Jsoup.parse(file.readText()).select("#dni-109" + (getDate()).toString() + "> b:nth-child(14)").text()
+        val fourtPair = Jsoup.parse(file.readText()).select("#dni-109" + (getDate()).toString() + "> b:nth-child(20)").text()
+
+        val replacements = getReplacements(fileReplacements)
+
+
+        val pairs = arrayOf(firstPair, secondPair, thirdPair, fourtPair)
+
+        if(replacements.first) {
+            for (i: Int in 0..replacements.second.size - 1 step 5) {
+                if (replacements.second.get(i).toInt() % 2 == 0) {
+                    pairs.set(
+                        replacements.second.get(i).toInt() / 2 - 1,
+                        "${replacements.second.get(i + 3)} (${replacements.second.get(i + 4)} / ${
+                            replacements.second.get(i + 2)} / *Замена*)"
+                    )
+                }
+            }
+        }
+
+        setTextInColumns(views,
+        "Пары на сегодня",
+            pairs[0],
+            pairs[1],
+            pairs[2],
+            pairs[3],)
     }
+
     private fun parseAllToTextViews(mainActView: ConstraintLayout, file: File, day: Int){
         val col1 = mainActView.getChildAt(0) as TextView
         val col2 = mainActView.getChildAt(2) as TextView
@@ -178,7 +236,8 @@ class WidgetDataUpdater{
     }
 
 
-    private fun setTextInColumns(views: RemoteViews, col1: String, col2: String, col3: String, col4: String, col5: String){
+    private fun setTextInColumns(views: RemoteViews, col1: String, col2: String, col3: String,
+                                 col4: String, col5: String){
         views.setTextViewText(R.id.textView0, col1)
         views.setTextViewText(R.id.textView1, col2)
         views.setTextViewText(R.id.textView2, col3)
@@ -197,7 +256,9 @@ class WidgetDataUpdater{
             }
         }
     }
-    private fun chooseNeedData(mainActView: ConstraintLayout, file: File, fileReplacements: File, seconds: Int, context: Context){
+
+    private fun chooseNeedData(mainActView: ConstraintLayout, file: File, fileReplacements: File,
+                               seconds: Int, context: Context){
         if(getDate()==-1){
             parseAllToTextViews(mainActView, file, 1)
         }
@@ -430,7 +491,6 @@ class WidgetDataUpdater{
         return 0
     }
 
-
     fun getTimeOfStart(nowUrk: Int) : Int{
         when(nowUrk){
             0 -> return 32400
@@ -451,16 +511,30 @@ class WidgetDataUpdater{
         return 0
     }
 
-    private fun chooseNeedData(views: RemoteViews, file: File, fileReplacements: File, seconds: Int, context: Context){
+    private fun chooseNeedData(views: RemoteViews, file: File, fileReplacements: File,
+                               seconds: Int){
         val firstPair = Jsoup.parse(file.readText()).select("#dni-109" + (getDate()).toString() + "> b:nth-child(2)").text()
         val secondPair = Jsoup.parse(file.readText()).select("#dni-109" + (getDate()).toString() + "> b:nth-child(8)").text()
         val thirdPair = Jsoup.parse(file.readText()).select("#dni-109" + (getDate()).toString() + "> b:nth-child(14)").text()
         val fourtPair = Jsoup.parse(file.readText()).select("#dni-109" + (getDate()).toString() + "> b:nth-child(20)").text()
         val foodTime = arrayOf("10:50","ДО","12:20", "11:50", "12:50", "12:20")
 
+        val replacements = getReplacements(fileReplacements)
+
+
         val pairs = arrayOf(firstPair, secondPair, thirdPair, fourtPair)
 
-        getReplacements(context, fileReplacements)
+        if(replacements.first) {
+            for (i: Int in 0..replacements.second.size - 1 step 5) {
+                if (replacements.second.get(i).toInt() % 2 == 0) {
+                    pairs.set(
+                        replacements.second.get(i).toInt() / 2 - 1,
+                        "${replacements.second.get(i + 3)} (${replacements.second.get(i + 4)} / ${
+                            replacements.second.get(i + 2)} / *Замена*)"
+                    )
+                }
+            }
+        }
 
         val realFirst = getRealPair(pairs)
         val realEnd= 3-getRealPair(pairs.reversedArray())
@@ -478,11 +552,11 @@ class WidgetDataUpdater{
             }
             // Утро до коляги
             in 0..getTimeOfStart(realFirst)-3600 -> {
-                parseAllToTextViews(views, file, 0)
+                parseAllToTextViews(views, file, fileReplacements, 0)
             }
             // Вечер после коляги
             in getTimeOfFinish(realEnd)..86400 -> {
-                parseAllToTextViews(views, file, 1)
+                parseAllToTextViews(views, file, fileReplacements, 1)
             }
             // 1 Урок
             in 32400..35100 -> {
@@ -492,8 +566,8 @@ class WidgetDataUpdater{
                             views,
                             "1 половина 1 пары / 1 урок",
                             "До конца урока " + (35100 - seconds + 60) / 60 + " мин",
-                            "Сейчас идет пара: $firstPair",
-                            "Будет пара: $secondPair",
+                            "Сейчас идет пара: ${pairs[0]}",
+                            "Будет пара: ${pairs[1]}",
                             "Обед в: " + foodTime[getDate()]
                         )
                     }
@@ -502,7 +576,7 @@ class WidgetDataUpdater{
                             views,
                             "1 половина 1 пары / 1 урок",
                             "До конца урока " + (35100 - seconds + 60) / 60 + " мин",
-                            "Сейчас идет пара: $firstPair",
+                            "Сейчас идет пара: ${pairs[0]}",
                             "Потом домой",
                             "Обед в: " + foodTime[getDate()]
                         )
@@ -517,7 +591,7 @@ class WidgetDataUpdater{
                             views,
                             "Перемена на 2 половину 1 пары",
                             "До конца перемены " + (35400 - seconds + 60) / 60 + " мин",
-                            "Будет пара: $firstPair",
+                            "Будет пара: ${pairs[0]}",
                             "Обед в: " + foodTime[getDate()],
                             ""
                         )
@@ -527,7 +601,7 @@ class WidgetDataUpdater{
                             views,
                             "Перемена на 2 половину 1 пары",
                             "До конца перемены " + (35400 - seconds + 60) / 60 + " мин",
-                            "Сейчас идет пара: $firstPair",
+                            "Сейчас идет пара: ${pairs[0]}",
                             "Потом домой",
                             "Обед в: " + foodTime[getDate()]
                         )
@@ -542,8 +616,8 @@ class WidgetDataUpdater{
                             views,
                             "2 половина 1 пары / 2 урок",
                             "До конца урока " + (38100 - seconds + 60) / 60 + " мин",
-                            "Сейчас идет пара: $firstPair",
-                            "Будет пара: $secondPair",
+                            "Сейчас идет пара: ${pairs[0]}",
+                            "Будет пара: ${pairs[1]}",
                             "Обед в: " + foodTime[getDate()]
                         )
                     }
@@ -552,7 +626,7 @@ class WidgetDataUpdater{
                             views,
                             "2 половина 1 пары / 2 урок",
                             "До конца урока " + (38100 - seconds + 60) / 60 + " мин",
-                            "Сейчас идет пара: $firstPair",
+                            "Сейчас идет пара: ${pairs[0]}",
                             "Потом домой",
                             "Обед в: " + foodTime[getDate()]
                         )
@@ -567,7 +641,7 @@ class WidgetDataUpdater{
                             views,
                             "Перемена на 1 половину 2 пары",
                             "До конца перемены " + (39900 - seconds + 60) / 60 + " мин",
-                            "Будет пара: $secondPair",
+                            "Будет пара: ${pairs[1]}",
                             "Обед в: " + foodTime[getDate()],
                             ""
                         )
@@ -578,9 +652,9 @@ class WidgetDataUpdater{
                             views,
                             "Перемена на 1 половину 2 пары",
                             "До конца перемены " + (39900 - seconds + 60) / 60 + " мин",
-                            "Сейчас будет: $secondPair",
+                            "Сейчас будет: ${pairs[1]}",
                             "Потом домой",
-                            "Обед в: \" + foodTime[getDate()]"
+                            "Обед в: " + foodTime[getDate()]
                         )
                     }
                 }
@@ -593,8 +667,8 @@ class WidgetDataUpdater{
                             views,
                             "1 половина 2 пары / 3 урок",
                             "До конца урока " + (42600 - seconds + 60) / 60 + " мин",
-                            "Сейчас идет пара: $secondPair",
-                            "Будет пара: $thirdPair",
+                            "Сейчас идет пара: ${pairs[1]}",
+                            "Будет пара: ${pairs[2]}",
                             "Обед в: " + foodTime[getDate()]
                         )
                     }
@@ -603,7 +677,7 @@ class WidgetDataUpdater{
                             views,
                             "1 половина 2 пары / 3 урок",
                             "До конца урока " + (42600 - seconds + 60) / 60 + " мин",
-                            "Сейчас идет пара: $firstPair",
+                            "Сейчас идет пара: ${pairs[0]}",
                             "Потом домой",
                             "Обед в: " + foodTime[getDate()]
                         )
@@ -618,7 +692,7 @@ class WidgetDataUpdater{
                             views,
                             "Перемена на 2 половину 2 пары",
                             "До конца перемены " + (42900 - seconds + 60) / 60 + " мин",
-                            "Будет пара: $secondPair",
+                            "Будет пара: ${pairs[1]}",
                             "Обед в: " + foodTime[getDate()],
                             ""
                         )
@@ -628,7 +702,7 @@ class WidgetDataUpdater{
                             views,
                             "Перемена на 2 половину 2 пары",
                             "До конца перемены " + (42900 - seconds + 60) / 60 + " мин",
-                            "Сейчас идет пара: $secondPair",
+                            "Сейчас идет пара: ${pairs[1]}",
                             "Потом домой",
                             "Обед в: " + foodTime[getDate()]
                         )
@@ -643,8 +717,8 @@ class WidgetDataUpdater{
                             views,
                             "2 половина 2 пары / 4 урок",
                             "До конца урока " + (45600 - seconds + 60) / 60 + " мин",
-                            "Сейчас идет пара: $secondPair",
-                            "Будет пара: $thirdPair",
+                            "Сейчас идет пара: ${pairs[1]}",
+                            "Будет пара: ${pairs[2]}",
                             "Обед в: " + foodTime[getDate()]
                         )
                     }
@@ -653,7 +727,7 @@ class WidgetDataUpdater{
                             views,
                             "2 половина 2 пары / 4 урок",
                             "До конца урока " + (45600 - seconds + 60) / 60 + " мин",
-                            "Сейчас идет пара: $secondPair",
+                            "Сейчас идет пара: ${pairs[1]}",
                             "Потом домой",
                             "Обед в: " + foodTime[getDate()]
                         )
@@ -668,7 +742,7 @@ class WidgetDataUpdater{
                             views,
                             "Перемена на 1 половину 3 пары",
                             "До конца перемены " + (47400 - seconds + 60) / 60 + " мин",
-                            "Будет пара: $thirdPair",
+                            "Будет пара: ${pairs[2]}",
                             "Обед в: " + foodTime[getDate()],
                             ""
                         )
@@ -678,9 +752,9 @@ class WidgetDataUpdater{
                             views,
                             "Перемена на 1 половину 3 пары",
                             "До конца перемены " + (47400 - seconds + 60) / 60 + " мин",
-                            "Сейчас будет: $thirdPair",
+                            "Сейчас будет: ${pairs[2]}",
                             "Потом домой",
-                            "Обед в: \" + foodTime[getDate()]"
+                            "Обед в: " + foodTime[getDate()]
                         )
                     }
                 }
@@ -693,8 +767,8 @@ class WidgetDataUpdater{
                             views,
                             "1 половина 3 пары / 5 урок",
                             "До конца урока " + (50100 - seconds + 60) / 60 + " мин",
-                            "Сейчас идет пара: $thirdPair",
-                            "Будет пара: $fourtPair",
+                            "Сейчас идет пара: ${pairs[2]}",
+                            "Будет пара: ${pairs[3]}",
                             "Обед в: " + foodTime[getDate()]
                         )
                     }
@@ -703,7 +777,7 @@ class WidgetDataUpdater{
                             views,
                             "1 половина 3 пары / 5 урок",
                             "До конца урока " + (50100 - seconds + 60) / 60 + " мин",
-                            "Сейчас идет пара: $thirdPair",
+                            "Сейчас идет пара: ${pairs[2]}",
                             "Потом домой",
                             "Обед в: " + foodTime[getDate()]
                         )
@@ -718,7 +792,7 @@ class WidgetDataUpdater{
                             views,
                             "Перемена на 2 половину 3 пары",
                             "До конца перемены " + (50400 - seconds + 60) / 60 + " мин",
-                            "Будет пара: $thirdPair",
+                            "Будет пара: ${pairs[2]}",
                             "Обед в: " + foodTime[getDate()],
                             ""
                         )
@@ -728,7 +802,7 @@ class WidgetDataUpdater{
                             views,
                             "Перемена на 2 половину 3 пары",
                             "До конца перемены " + (50400 - seconds + 60) / 60 + " мин",
-                            "Сейчас идет пара: $thirdPair",
+                            "Сейчас идет пара: ${pairs[2]}",
                             "Потом домой",
                             "Обед в: " + foodTime[getDate()]
                         )
@@ -743,8 +817,8 @@ class WidgetDataUpdater{
                             views,
                             "2 половина 3 пары / 6 урок",
                             "До конца урока " + (53100 - seconds + 60) / 60 + " мин",
-                            "Сейчас идет пара: $thirdPair",
-                            "Будет пара: $fourtPair",
+                            "Сейчас идет пара: ${pairs[2]}",
+                            "Будет пара: ${pairs[3]}",
                             "Обед в: " + foodTime[getDate()]
                         )
                     }
@@ -753,7 +827,7 @@ class WidgetDataUpdater{
                             views,
                             "2 половина 3 пары / 6 урок",
                             "До конца урока " + (53100 - seconds + 60) / 60 + " мин",
-                            "Сейчас идет пара: $thirdPair",
+                            "Сейчас идет пара: ${pairs[2]}",
                             "Потом домой",
                             "Обед в: " + foodTime[getDate()]
                         )
@@ -767,9 +841,9 @@ class WidgetDataUpdater{
                         views,
                         "Перемена на 1 половину 4 пары",
                         "До конца перемены " + (53700 - seconds + 60) / 60 + " мин",
-                        "Сейчас будет: $fourtPair",
+                        "Сейчас будет: ${pairs[3]}",
                         "Потом домой",
-                        "Обед в: \" + foodTime[getDate()]"
+                        "Обед в: " + foodTime[getDate()]
                     )
                 }
             }
@@ -780,7 +854,7 @@ class WidgetDataUpdater{
                         views,
                         "1 половина 4 пары / 7 урок",
                         "До конца урока " + (56400 - seconds + 60) / 60 + " мин",
-                        "Сейчас идет пара: $fourtPair",
+                        "Сейчас идет пара: ${pairs[3]}",
                         "Потом домой",
                         "Обед в: " + foodTime[getDate()]
                     )
@@ -793,7 +867,7 @@ class WidgetDataUpdater{
                         views,
                         "Перемена на 2 половину 4 пары",
                         "До конца перемены " + (56700 - seconds + 60) / 60 + " мин",
-                        "Сейчас идет пара: $fourtPair",
+                        "Сейчас идет пара: ${pairs[3]}",
                         "Потом домой",
                         "Обед в: " + foodTime[getDate()]
                     )
@@ -806,7 +880,7 @@ class WidgetDataUpdater{
                         views,
                         "2 половина 4 пары / 8 урок",
                         "До конца урока " + (59400 - seconds + 60) / 60 + " мин",
-                        "Сейчас идет пара: $fourtPair",
+                        "Сейчас идет пара: ${pairs[3]}",
                         "Потом домой",
                         "Обед в: " + foodTime[getDate()]
                     )
@@ -815,8 +889,8 @@ class WidgetDataUpdater{
         }
     }
 
-
-    private fun changePaddingTextViews(mSharedPrefs: SharedPreferences, views: RemoteViews, density: Float){
+    private fun changePaddingTextViews(mSharedPrefs: SharedPreferences, views: RemoteViews,
+                                       density: Float){
         views.setViewPadding(R.id.textView0, 0,
             (density * mSharedPrefs.getInt("offset", 16)).toInt(),0,(density * mSharedPrefs.getInt("offset", 16)).toInt())
         views.setViewPadding(R.id.textView1, 0,
@@ -839,51 +913,46 @@ class WidgetDataUpdater{
     }
 
     private fun changeColor(mSharedPrefs: SharedPreferences, views: RemoteViews, context: Context){
-            if (mSharedPrefs.contains("color_background")) {
                 views.setInt(
                     R.id.backOfMainW,
                     "setColorFilter",
-                    mSharedPrefs.getInt("color_background", 0)
+                    mSharedPrefs.getInt("color_background", -15921907)
                 )
-
-            }
-            if (mSharedPrefs.contains("color_text")) {
-                views.setTextColor(R.id.textView0, mSharedPrefs.getInt("color_text", 0));
-                views.setTextColor(R.id.textView1, mSharedPrefs.getInt("color_text", 0));
-                views.setTextColor(R.id.textView2, mSharedPrefs.getInt("color_text", 0));
-                views.setTextColor(R.id.textView3, mSharedPrefs.getInt("color_text", 0));
-                views.setTextColor(R.id.textView4, mSharedPrefs.getInt("color_text", 0));
+                views.setTextColor(R.id.textView0, mSharedPrefs.getInt("color_text", -855310));
+                views.setTextColor(R.id.textView1, mSharedPrefs.getInt("color_text", -855310));
+                views.setTextColor(R.id.textView2, mSharedPrefs.getInt("color_text", -855310));
+                views.setTextColor(R.id.textView3, mSharedPrefs.getInt("color_text", -855310));
+                views.setTextColor(R.id.textView4, mSharedPrefs.getInt("color_text", -855310));
 
                 views.setInt(
                     R.id.separator0,
                     "setColorFilter",
-                    mSharedPrefs.getInt("color_text", 0)
+                    mSharedPrefs.getInt("color_text", -855310)
                 )
                 views.setInt(
                     R.id.separator1,
                     "setColorFilter",
-                    mSharedPrefs.getInt("color_text", 0)
+                    mSharedPrefs.getInt("color_text", -855310)
                 )
                 views.setInt(
                     R.id.separator2,
                     "setColorFilter",
-                    mSharedPrefs.getInt("color_text", 0)
+                    mSharedPrefs.getInt("color_text", -855310)
                 )
                 views.setInt(
                     R.id.separator3,
                     "setColorFilter",
-                    mSharedPrefs.getInt("color_text", 0)
+                    mSharedPrefs.getInt("color_text", -855310)
                 )
                 views.setInt(
                     R.id.scheduleImage,
                     "setColorFilter",
-                    mSharedPrefs.getInt("color_text", 0)
+                    mSharedPrefs.getInt("color_text", -855310)
                 )
-            }
-
     }
 
-    private fun changeColor(mSharedPrefs: SharedPreferences, views: RemoteViews, context: Context, colorD: Int, colorM: Int){
+    private fun changeColor(mSharedPrefs: SharedPreferences, views: RemoteViews, context: Context,
+                            colorD: Int, colorM: Int){
             views.setInt(
                 R.id.backOfMainW,
                 "setColorFilter",

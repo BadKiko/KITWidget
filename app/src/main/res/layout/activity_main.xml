@@ -8,6 +8,13 @@
     android:background="@color/main_win_color"
     tools:context=".MainActivity">
 
+    <WebView
+        android:id="@+id/wbv"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="invisible"
+        tools:layout_editor_absoluteY="157dp" />
+
     <ScrollView
         android:layout_width="wrap_content"
         android:layout_height="0dp"

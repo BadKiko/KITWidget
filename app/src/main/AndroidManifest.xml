@@ -7,6 +7,8 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <application
         android:allowBackup="true"
@@ -19,9 +21,13 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="n">
         <receiver
-            android:name=".ScheduleChanger"
+            android:name=".RecieveBoot"
             android:enabled="true"
             android:exported="true"></receiver>
+        <receiver
+            android:name=".ScheduleChanger"
+            android:enabled="true"
+            android:exported="true" />
 
         <service
             android:name=".MusicArt"
